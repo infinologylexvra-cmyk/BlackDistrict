@@ -1,35 +1,40 @@
 import React from 'react';
+import homepageImg from '../assets/homepage-1.webp';
 
 const Hero = () => {
   return (
-    <div className="bg-[#f5f5f0] w-full pt-10 pb-16">
-      <div className="max-w-[120rem] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center gap-12">
-          
-          {/* Image Side */}
-          <div className="w-full md:w-1/2">
-            <img 
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
-              alt="FineLegends Collection" 
-              className="w-full h-[60vh] object-cover"
-            />
-          </div>
+    <div className="relative w-full flex items-center justify-center overflow-hidden">
+      
+      {/* Background Image (Normal flow to dictate full container height) */}
+      <img 
+        src={homepageImg} 
+        alt="FineLegends Old Money Collection" 
+        width="2160"
+        height="2700"
+        className="w-full h-auto block"
+      />
+      
+      {/* Subtle dark gradient overlay to ensure text readability */}
+      <div className="absolute inset-0 bg-black/20 z-0"></div>
 
-          {/* Text Side */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center items-start text-left">
-            <h2 className="text-4xl md:text-5xl lg:text-[4rem] leading-tight font-heading text-[#1a1a1a] mb-6">
-              Elevate your everyday style
-            </h2>
-            <div className="text-lg md:text-xl text-[#1a1a1a] mb-10 font-body max-w-lg">
-              <p>Discover apparel crafted for the modern legend. Quality meets timeless design.</p>
-            </div>
-            <a href="#products" className="btn-primary">
-              Shop all
-            </a>
-          </div>
-
+      {/* Content */}
+      <div className="absolute z-10 w-full px-4 inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+        <div className="w-full flex flex-col items-start text-left max-w-[800px]">
+          <h1 className="text-white font-heading font-semibold text-[50px] md:text-[60px] leading-[72px] w-full max-w-[800px] mb-4 drop-shadow-md">
+            The Standard of Elegance.
+          </h1>
+          <p className="text-white font-body text-[18px] md:text-[20px] leading-[30px] w-full max-w-[800px] mb-8 drop-shadow-md">
+            Discover the signature Old Money collection, tailored for sophistication.
+          </p>
+          <a 
+            href="#products" 
+            className="bg-[#002349] text-white font-body font-bold text-[13px] w-[147px] h-[37px] flex items-center justify-center rounded hover:opacity-90 transition-all shadow-md"
+          >
+            Discover the Craft
+          </a>
         </div>
       </div>
+      
     </div>
   );
 };

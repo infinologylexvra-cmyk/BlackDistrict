@@ -1,5 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingBag, Search, User, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import logoImg from '../assets/logo-signature.webp';
 
 const Header = () => {
   return (
@@ -22,7 +24,7 @@ const Header = () => {
         <div className="max-w-[120rem] mx-auto px-4 sm:px-6 lg:px-10">
           
           {/* Top Row: Search, Logo, Icons */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-8 max-w-5xl mx-auto w-full px-4 sm:px-10 lg:px-20">
             
             {/* Search */}
             <div className="flex-1 flex justify-start">
@@ -34,7 +36,7 @@ const Header = () => {
             {/* Logo */}
             <div className="flex-1 flex justify-center">
               <a href="/">
-                <img src="/image/logo-signature.webp" alt="FineLegends" className="h-12 w-auto object-contain" />
+                <img src={logoImg} alt="FineLegends" className="h-12 w-auto object-contain" />
               </a>
             </div>
 
@@ -56,8 +58,8 @@ const Header = () => {
 
           {/* Bottom Row: Navigation */}
           <nav className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-[15px] font-body">
-            <a href="#" className="text-[#1a1a1a] underline decoration-[1px] underline-offset-[6px]">Home</a>
-            <a href="#" className="text-gray-600 hover:text-[#1a1a1a] hover:underline decoration-[1px] underline-offset-[6px]">Contact</a>
+            <Link to="/" className="text-[#1a1a1a] underline decoration-[1px] underline-offset-[6px]">Home</Link>
+            <Link to="/contact" className="text-gray-600 hover:text-[#1a1a1a] hover:underline decoration-[1px] underline-offset-[6px]">Contact</Link>
             <a href="#" className="text-gray-600 hover:text-[#1a1a1a] hover:underline decoration-[1px] underline-offset-[6px]">The Shirt</a>
             <a href="#" className="text-gray-600 hover:text-[#1a1a1a] hover:underline decoration-[1px] underline-offset-[6px]">The Pant</a>
             <a href="#" className="text-gray-600 hover:text-[#1a1a1a] hover:underline decoration-[1px] underline-offset-[6px]">All collections</a>

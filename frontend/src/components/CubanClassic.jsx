@@ -3,46 +3,32 @@ import React from 'react';
 const products = [
   {
     id: 1,
-    name: 'Old Money Classic Combo (Brown & Beige)',
+    name: 'Old Money Cuban Collar Combo (Grey & Black)',
     originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1594938291221-94f18cbb5660?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 'Rs. 1,899.00',
+    image: 'https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 2,
-    name: 'Old Money Classic Combo (Blue & Beige)',
+    name: 'Old Money Cuban Combo (Maroon & Beige)',
     originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 3,
-    name: 'Old Money Classic Combo (Olive & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1507114845806-0347f6150324?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    id: 4,
-    name: 'Old Money Classic Combo (Maroon & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 'Rs. 1,899.00',
+    image: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
   }
 ];
 
-const ProductGrid = () => {
+const CubanClassic = () => {
   return (
-    <div id="products" className="bg-[#f5f5f0] pt-8 pb-20">
+    <div className="bg-[#f5f5f0] pt-16 pb-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
         
         {/* Section Header */}
         <div className="mb-12 text-left">
           <h2 className="text-[32px] md:text-[44px] font-heading font-medium text-[#1a1a1a] mb-3">
-            The Signature Duos
+            The Cuban Classic
           </h2>
           <p className="text-[#555555] font-body text-[15px] md:text-[17px]">
-            Effortless sophistication in a single set. Our curated combos are designed for the modern legend.
+            Effortless Summer Sophistication. The relaxed silhouette for the modern legend.
           </p>
         </div>
 
@@ -98,4 +84,4 @@ const ProductGrid = () => {
   );
 };
 
-export default ProductGrid;
+export default CubanClassic;
