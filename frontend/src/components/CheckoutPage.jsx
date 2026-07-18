@@ -44,6 +44,8 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
   // UPI ID input state
   const [upiIdInput, setUpiIdInput] = useState('');
   const [verifiedUpiName, setVerifiedUpiName] = useState('');
+  const [simulatingPayment, setSimulatingPayment] = useState(false);
+  const [simulatingStatus, setSimulatingStatus] = useState('');
 
   // Wallet input state
   const [selectedWallet, setSelectedWallet] = useState('phonepe');
@@ -199,7 +201,10 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
       name,
       email,
       phone: `+91${phone}`,
-      address: `${flat}, ${apartment}, ${city}, ${state} - ${pincode}`,
+      address: `${flat}, ${apartment}`,
+      city,
+      state,
+      postalCode: pincode,
       addressType,
       shippingMethod
     };
@@ -225,11 +230,15 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
         alert('Razorpay SDK failed to load. Please check your internet connection.');
         setLoading(false);
         return;
+      }      // 3. Define Razorpay Options
+      // 3. Define Razorpay Options
+      let finalKey = orderData.key_id;
+      if (finalKey.includes('FineLegendsKeys') || finalKey.includes('PLACEHOLDER')) {
+        finalKey = 'rzp_test_TErlyYApKITv7m';
       }
 
-      // 3. Define Razorpay Options
       const options = {
-        key: orderData.mock ? 'rzp_live_TErlyYApKITv7m' : orderData.key_id,
+        key: finalKey,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Regal Weave',
@@ -290,7 +299,6 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
         }
       };
 
-      // Only pass order_id if it's a real order created on the backend (not mock)
       if (orderData.id && !orderData.id.startsWith('order_mock_')) {
         options.order_id = orderData.id;
       }
@@ -299,7 +307,6 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
       setLoading(false);
-
     } catch (err) {
       console.error('Checkout gateway error:', err);
       alert('Error triggering checkout gateway.');
@@ -328,6 +335,27 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart }) => {
           >
             Continue Shopping
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (simulatingPayment) {
+    return (
+      <div className="fixed inset-0 bg-black/80 z-[60] flex flex-col justify-center items-center p-4 font-sans text-center">
+        <div className="bg-white max-w-sm w-full p-8 border border-gray-150 shadow-2xl rounded-xl space-y-6 animate-slide-up">
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#002349]"></div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-[16px] font-bold text-gray-800 uppercase tracking-wider">Secured Online Payment</h3>
+            <p className="text-[13px] text-gray-500 font-medium animate-pulse">{simulatingStatus}</p>
+          </div>
+          <div className="pt-2 border-t border-gray-100 flex items-center justify-center space-x-2 text-[10px] text-gray-400 font-semibold uppercase tracking-widest">
+            <span>🛡 PCI-DSS Compliant</span>
+            <span>•</span>
+            <span>256-bit SSL</span>
+          </div>
         </div>
       </div>
     );

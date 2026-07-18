@@ -29,7 +29,7 @@ const createOrder = async (req, res) => {
         id: `order_mock_${Date.now()}`,
         amount: options.amount,
         currency: options.currency,
-        key_id: 'rzp_test_FineLegendsKeys123',
+        key_id: 'rzp_test_TErlyYApKITv7m',
         mock: true
       });
     }
@@ -47,12 +47,18 @@ const createOrder = async (req, res) => {
     });
   } catch (err) {
     console.error('Razorpay Order Creation Error:', err.message);
-    // Fallback to mock order so checkout doesn't block developers
+    
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    let fallbackKey = keyId || 'rzp_test_TErlyYApKITv7m';
+    if (fallbackKey.startsWith('rzp_live_')) {
+      fallbackKey = fallbackKey.replace('rzp_live_', 'rzp_test_');
+    }
+
     res.json({
       id: `order_mock_${Date.now()}`,
       amount: Math.round(amount * 100),
       currency: 'INR',
-      key_id: 'rzp_test_FineLegendsKeys123',
+      key_id: fallbackKey,
       mock: true
     });
   }
@@ -170,8 +176,8 @@ const verifyUpi = async (req, res) => {
   const keyId = process.env.RAZORPAY_KEY_ID || '';
   const keySecret = process.env.RAZORPAY_KEY_SECRET || '';
 
-  // Only call real Razorpay API if BOTH key and secret look genuine
-  const isRealKey = keyId.startsWith('rzp_') && 
+  // Only call real Razorpay API if BOTH key and secret look genuine and we are in Live Mode
+  const isRealKey = keyId.startsWith('rzp_live_') && 
     !keyId.includes('FineLegendsKeys') && 
     !keyId.includes('PLACEHOLDER') &&
     keySecret.length > 20 &&
