@@ -1,39 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-const products = [
+const FALLBACK_COMBOS = [
   {
-    id: 1,
+    _id: 'c1',
     name: 'Old Money Classic Combo (Brown & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1594938291221-94f18cbb5660?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 2099,
+    compareAtPrice: 2999,
+    images: ['/image/collection-signature.webp', '/image/beige-pant-2.jpg'],
+    category: 'combo'
   },
   {
-    id: 2,
+    _id: 'c2',
     name: 'Old Money Classic Combo (Blue & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 2099,
+    compareAtPrice: 2999,
+    images: ['/image/collection-combo.png', '/image/beige-pant-2.jpg'],
+    category: 'combo'
   },
   {
-    id: 3,
+    _id: 'c3',
     name: 'Old Money Classic Combo (Olive & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1507114845806-0347f6150324?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 2099,
+    compareAtPrice: 2999,
+    images: ['/image/collection-gurkha.jpg', '/image/beige-pant-2.jpg'],
+    category: 'combo'
   },
   {
-    id: 4,
+    _id: 'c4',
     name: 'Old Money Classic Combo (Maroon & Beige)',
-    originalPrice: 'Rs. 2,999.00',
-    price: 'Rs. 2,099.00',
-    image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    price: 2099,
+    compareAtPrice: 2999,
+    images: ['/image/collection-winterwear.jpg', '/image/beige-pant-2.jpg'],
+    category: 'combo'
   }
 ];
 
-const ProductGrid = () => {
+const ProductGrid = ({ onProductSelect }) => {
+  const [combos, setCombos] = useState(FALLBACK_COMBOS);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const comboItems = data.filter(p => p.category === 'combo');
+          if (comboItems.length > 0) {
+            setCombos(comboItems);
+          }
+        }
+      })
+      .catch(err => console.warn('Backend API connection failed, using offline combos:', err.message));
+  }, []);
+
+  const formatPrice = (value) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    }).format(value).replace('₹', 'Rs. ');
+  };
+
   return (
-    <div id="products" className="bg-[#f5f5f0] pt-8 pb-20">
+    <div id="products" className="bg-[#f5f5f0] pt-8 pb-20 text-left">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
         
         {/* Section Header */}
@@ -48,13 +77,17 @@ const ProductGrid = () => {
 
         {/* Product Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-6 lg:gap-x-8">
-          {products.map((product) => (
-            <div key={product.id} className="group flex flex-col text-left cursor-pointer">
+          {combos.map((product) => (
+            <div 
+              key={product._id} 
+              onClick={() => onProductSelect && onProductSelect(product)}
+              className="group flex flex-col text-left cursor-pointer"
+            >
               
               {/* Image Container */}
-              <div className="relative w-full bg-gray-200 aspect-[3/4] overflow-hidden mb-4">
+              <div className="relative w-full bg-gray-200 aspect-[3/4] overflow-hidden mb-4 border border-[#e5e5e0]">
                 <img
-                  src={product.image}
+                  src={product.images[0]}
                   alt={product.name}
                   className="w-full h-full object-center object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-in-out"
                 />
@@ -70,27 +103,19 @@ const ProductGrid = () => {
               </h3>
               
               {/* Pricing */}
-              <div className="flex items-center space-x-2 mt-1">
-                <span className="text-[13px] md:text-[14px] text-gray-500 font-body line-through">
-                  {product.originalPrice}
-                </span>
-                <span className="text-[13px] md:text-[14px] text-[#1a1a1a] font-body font-medium">
-                  {product.price}
+              <div className="flex items-center space-x-2 mt-1 font-sans">
+                {product.compareAtPrice && (
+                  <span className="text-[13px] md:text-[14px] text-gray-500 line-through font-light">
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
+                )}
+                <span className="text-[13px] md:text-[14px] text-[#1a1a1a] font-semibold">
+                  {formatPrice(product.price)}
                 </span>
               </div>
 
             </div>
           ))}
-        </div>
-        
-        {/* View All Button */}
-        <div className="mt-16 flex justify-center">
-          <a 
-            href="#" 
-            className="bg-[#002349] text-white font-body text-[14px] px-10 py-3 hover:opacity-90 transition-opacity"
-          >
-            View all
-          </a>
         </div>
         
       </div>

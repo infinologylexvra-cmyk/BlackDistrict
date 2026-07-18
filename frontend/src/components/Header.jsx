@@ -13,15 +13,26 @@ const Header = ({
   isSearchOpen,
   setIsSearchOpen,
   isAuthOpen,
-  setIsAuthOpen
+  setIsAuthOpen,
+  searchQuery,
+  setSearchQuery,
+  onCheckout
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  
   // Auth state inputs
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Mobile OTP state hooks
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [mockOtpReceived, setMockOtpReceived] = useState('');
+  const [notifyOffers, setNotifyOffers] = useState(true);
 
   const handleNavClick = (page, e) => {
     if (e) e.preventDefault();
@@ -52,11 +63,124 @@ const Header = ({
     }).format(value).replace('₹', 'Rs. ');
   };
 
-  const handleAuthSubmit = (e) => {
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    setAuthError('');
+    setOtpLoading(true);
+
+    if (!phone || phone.length < 10) {
+      setAuthError('Please enter a valid 10-digit mobile number.');
+      setOtpLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/users/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsOtpSent(true);
+        if (data.mockOtp) {
+          setMockOtpReceived(data.mockOtp);
+        }
+      } else {
+        setAuthError(data.message || 'Failed to send OTP.');
+      }
+    } catch (err) {
+      console.error('Send OTP Error:', err);
+      setAuthError('Network error connecting to OTP server.');
+    }
+    setOtpLoading(false);
+  };
+
+  const handleVerifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    setAuthError('');
+    setOtpLoading(true);
+
+    if (!otp || otp.length < 6) {
+      setAuthError('Please enter a valid 6-digit OTP code.');
+      setOtpLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/users/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsLoggedIn(true);
+        setIsAuthOpen(false);
+        setAuthError('');
+        // Reset states
+        setIsOtpSent(false);
+        setPhone('');
+        setOtp('');
+        setMockOtpReceived('');
+        // Save user session
+        localStorage.setItem('user', JSON.stringify(data.user));
+      } else {
+        setAuthError(data.message || 'OTP verification failed.');
+      }
+    } catch (err) {
+      console.error('Verify OTP Error:', err);
+      setAuthError('Network error verifying OTP.');
+    }
+    setOtpLoading(false);
+  };
+
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      setIsLoggedIn(true);
-      setIsAuthOpen(false);
+    setAuthError('');
+
+    // Input Validation
+    if (!email || !password) {
+      setAuthError('Please fill in all fields.');
+      return;
+    }
+    if (isSignUp && !name) {
+      setAuthError('Please enter your name.');
+      return;
+    }
+    if (password.length < 6) {
+      setAuthError('Password must be at least 6 characters.');
+      return;
+    }
+
+    const endpoint = isSignUp 
+      ? 'http://localhost:5000/api/users/signup' 
+      : 'http://localhost:5000/api/users/login';
+
+    const payload = isSignUp ? { name, email, password } : { email, password };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+        setIsAuthOpen(false);
+        setAuthError('');
+        // Save logged-in user in localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+      } else {
+        setAuthError(data.message || 'Authentication failed.');
+      }
+    } catch (err) {
+      console.error('Auth Error:', err);
+      setAuthError('Network error connecting to auth server.');
     }
   };
 
@@ -179,7 +303,15 @@ const Header = ({
                 type="text" 
                 placeholder="Search our store..." 
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim() !== '') {
+                    setCurrentPage('search');
+                  } else {
+                    setCurrentPage('pant');
+                  }
+                }}
                 className="w-full bg-transparent border-none text-[16px] font-sans p-2 focus:ring-0 focus:outline-none placeholder-gray-400"
               />
             </div>
@@ -187,6 +319,7 @@ const Header = ({
               onClick={() => {
                 setIsSearchOpen(false);
                 setSearchQuery('');
+                setCurrentPage('pant');
               }}
               className="text-[#1a1a1a] hover:opacity-75"
             >
@@ -196,68 +329,191 @@ const Header = ({
         </div>
       )}
 
-      {/* Dynamic Profile Modal */}
+      {/* Dynamic Profile Modal (KwikPass UI Match) */}
       {isAuthOpen && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
-          <div className="bg-[#f5f5f0] border border-[#e5e5e0] max-w-md w-full p-8 relative text-left">
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center p-4 z-50 animate-fade-in font-sans">
+          
+          {/* Modal Container */}
+          <div className="bg-white border border-gray-200 max-w-3xl w-full p-8 md:p-10 relative flex flex-col md:flex-row items-center gap-8 md:gap-12 shadow-2xl rounded-none text-left">
+            
+            {/* Close Icon */}
             <button 
-              onClick={() => setIsAuthOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-black"
+              onClick={() => {
+                setIsAuthOpen(false);
+                setIsOtpSent(false);
+                setPhone('');
+                setOtp('');
+                setMockOtpReceived('');
+                setAuthError('');
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors"
             >
-              <X size={20} />
+              <X size={22} />
             </button>
 
             {isLoggedIn ? (
-              <div className="text-center">
-                <h2 className="text-[22px] font-heading mb-4">Welcome back, Legend!</h2>
-                <p className="text-[14px] font-sans text-[#6b6b66] mb-6">You are logged into your FineLegends account.</p>
+              <div className="w-full text-center py-6">
+                <h2 className="text-[24px] font-heading font-medium mb-3 text-[#1a1a1a]">Welcome back, Legend!</h2>
+                <p className="text-[14px] text-gray-500 mb-8">You are logged into your FineLegends account using mobile verification.</p>
                 <button 
                   onClick={() => setIsLoggedIn(false)}
-                  className="w-full py-3 bg-[#002349] text-white uppercase text-[12px] font-sans tracking-widest font-medium"
+                  className="px-8 py-3 bg-[#002349] text-white uppercase text-[12px] tracking-widest font-semibold hover:opacity-90 transition-opacity"
                 >
                   Log Out
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleAuthSubmit} className="space-y-4">
-                <h2 className="text-[22px] font-heading mb-4">{isSignUp ? 'Create Account' : 'Login'}</h2>
-                <div className="flex flex-col">
-                  <label className="text-[12px] font-sans font-semibold uppercase tracking-wider mb-2">Email</label>
-                  <input 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="border border-[#1a1a1a] px-3 py-2 bg-transparent text-[14px] focus:outline-none"
+              <>
+                {/* Left Section: Logos & Callout */}
+                <div className="w-full md:w-1/2 flex flex-col items-center text-center border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-8">
+                  
+                  {/* Brand signature logo */}
+                  <img 
+                    src="/image/logo-signature.webp" 
+                    alt="FineLegends" 
+                    className="h-14 w-auto object-contain mb-4" 
                   />
+
+                  {/* Powered by KwikPass */}
+                  <div className="flex items-center space-x-1.5 mb-6 text-gray-600 text-[13px]">
+                    <span className="font-light text-gray-400">Powered by</span>
+                    <span className="font-bold text-[#1a1a1a] tracking-tight">Kwik</span>
+                    <span className="text-yellow-500 font-bold">&#9889;</span>
+                    <span className="font-bold text-[#1a1a1a] tracking-tight">Pass</span>
+                  </div>
+
+                  <h3 className="text-[20px] font-bold leading-snug text-[#1a1a1a] max-w-xs font-heading">
+                    Login now to avail best offers!
+                  </h3>
+
                 </div>
-                <div className="flex flex-col">
-                  <label className="text-[12px] font-sans font-semibold uppercase tracking-wider mb-2">Password</label>
-                  <input 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="border border-[#1a1a1a] px-3 py-2 bg-transparent text-[14px] focus:outline-none"
-                  />
+
+                {/* Right Section: Interactive Forms */}
+                <div className="w-full md:w-1/2 space-y-4">
+                  
+                  {authError && (
+                    <div className="bg-red-50 text-red-600 border border-red-200 p-3 text-[12px] rounded">
+                      {authError}
+                    </div>
+                  )}
+
+                  {/* Display simulated helper OTP code in dev mode */}
+                  {mockOtpReceived && (
+                    <div className="bg-blue-50 text-[#002349] border border-blue-200 p-3 text-[12px] font-semibold">
+                      [SIMULATED OTP] Verification Code is: {mockOtpReceived}
+                    </div>
+                  )}
+
+                  {!isOtpSent ? (
+                    /* Step 1: Input Mobile */
+                    <form onSubmit={handleSendOtp} className="space-y-4">
+                      
+                      <div className="flex items-center border border-gray-300 rounded overflow-hidden bg-white">
+                        
+                        {/* India country prefix */}
+                        <div className="flex items-center space-x-2 px-3 py-3 border-r border-gray-300 bg-gray-50 text-[14px] text-gray-600 font-medium select-none">
+                          <span className="text-[16px]">🇮🇳</span>
+                          <span>+91</span>
+                        </div>
+
+                        <input 
+                          type="tel" 
+                          required
+                          maxLength={10}
+                          placeholder="Enter Mobile Number"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                          className="w-full px-3 py-3 bg-transparent text-[14px] focus:outline-none placeholder-gray-400"
+                        />
+
+                      </div>
+
+                      {/* Updates preference checkbox */}
+                      <label className="flex items-start space-x-2.5 cursor-pointer text-left py-1 select-none">
+                        <input 
+                          type="checkbox" 
+                          checked={notifyOffers}
+                          onChange={(e) => setNotifyOffers(e.target.checked)}
+                          className="mt-0.5 text-[#002349] focus:ring-0 focus:ring-offset-0 rounded border-gray-300"
+                        />
+                        <span className="text-[12px] text-gray-500 font-medium">
+                          Notify me with offers & updates
+                        </span>
+                      </label>
+
+                      <button 
+                        type="submit"
+                        disabled={otpLoading}
+                        className="w-full py-3.5 bg-black text-white text-[14px] font-bold hover:bg-black/90 transition-colors uppercase tracking-wider"
+                      >
+                        {otpLoading ? 'Sending...' : 'Submit'}
+                      </button>
+
+                    </form>
+                  ) : (
+                    /* Step 2: Enter OTP Code received */
+                    <form onSubmit={handleVerifyOtp} className="space-y-4">
+                      
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                          Enter Verification Code
+                        </label>
+                        <input 
+                          type="text" 
+                          required
+                          maxLength={6}
+                          placeholder="Enter 6-Digit OTP"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                          className="w-full px-4 py-3 border border-gray-300 rounded text-[15px] focus:outline-none focus:border-black tracking-[0.25em] text-center font-bold placeholder-gray-300"
+                        />
+                      </div>
+
+                      <button 
+                        type="submit"
+                        disabled={otpLoading}
+                        className="w-full py-3.5 bg-black text-white text-[14px] font-bold hover:bg-black/90 transition-colors uppercase tracking-wider"
+                      >
+                        {otpLoading ? 'Verifying...' : 'Verify OTP'}
+                      </button>
+
+                      {/* Go back / Resend OTP */}
+                      <div className="flex justify-between items-center text-[12px] pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsOtpSent(false);
+                            setOtp('');
+                            setMockOtpReceived('');
+                            setAuthError('');
+                          }}
+                          className="text-gray-500 hover:text-black underline"
+                        >
+                          Change Number
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSendOtp}
+                          className="text-[#002349] hover:underline font-semibold"
+                        >
+                          Resend OTP
+                        </button>
+                      </div>
+
+                    </form>
+                  )}
+
+                  {/* Accept terms T&C */}
+                  <p className="text-[11px] text-gray-400 leading-normal pt-4 border-t border-gray-100 text-center">
+                    I accept that I have read & understood your <a href="#" className="underline text-gray-500">Privacy Policy</a> and <a href="#" className="underline text-gray-500">T&Cs</a>.
+                  </p>
+
                 </div>
-                
-                <button 
-                  type="submit"
-                  className="w-full py-3 bg-[#002349] text-white uppercase text-[12px] font-sans tracking-widest font-medium"
-                >
-                  {isSignUp ? 'Sign Up' : 'Sign In'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
-                  className="w-full text-center text-[12px] underline hover:text-[#002349]"
-                >
-                  {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-                </button>
-              </form>
+              </>
             )}
+
           </div>
+
         </div>
       )}
 
@@ -288,18 +544,37 @@ const Header = ({
                 {/* Items list */}
                 <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                   {cartItems.length === 0 ? (
-                    <div className="h-full flex flex-col justify-center items-center text-center">
-                      <ShoppingBag size={40} className="text-[#8c8c82] mb-4" />
-                      <p className="text-[15px] text-[#6b6b66]">Your bag is currently empty.</p>
+                    <div className="h-full flex flex-col justify-center items-center text-center px-4">
+                      
+                      <h3 className="text-[26px] font-heading font-medium text-[#1a1a1a] mb-6">
+                        Your cart is empty
+                      </h3>
+                      
                       <button 
                         onClick={() => {
                           setIsCartOpen(false);
-                          handleNavClick('pant');
+                          handleNavClick('home');
                         }}
-                        className="mt-6 px-6 py-2.5 bg-[#002349] text-white text-[12px] uppercase tracking-wider font-medium"
+                        className="px-8 py-3.5 bg-[#002349] text-white text-[13px] font-sans font-semibold uppercase tracking-widest hover:opacity-95 transition-opacity mb-10 w-full max-w-[280px]"
                       >
-                        Shop the collections
+                        Continue shopping
                       </button>
+
+                      <div className="border-t border-[#ebd9aa]/20 pt-8 w-full">
+                        <p className="text-[20px] font-heading text-[#1a1a1a] mb-1">
+                          Have an account?
+                        </p>
+                        <button
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            setIsAuthOpen(true);
+                          }}
+                          className="text-[14px] font-sans text-gray-600 hover:text-black underline underline-offset-4 decoration-1 font-medium"
+                        >
+                          Log in to check out faster.
+                        </button>
+                      </div>
+
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -359,10 +634,10 @@ const Header = ({
                     <p className="mt-0.5 text-[12px] text-[#6b6b66]">Shipping and taxes calculated at checkout.</p>
                     <div className="mt-6">
                       <button 
-                        onClick={() => alert('Proceeding to checkout with Gokwik...')}
+                        onClick={() => onCheckout && onCheckout()}
                         className="flex w-full items-center justify-center bg-[#002349] px-6 py-4 text-[13px] font-semibold text-white uppercase tracking-widest hover:opacity-90 transition-opacity"
                       >
-                        Checkout (Gokwik)
+                        Checkout
                       </button>
                     </div>
                   </div>

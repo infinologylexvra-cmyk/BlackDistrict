@@ -50,7 +50,7 @@ const FALLBACK_PRODUCTS = [
   }
 ];
 
-const PantCollectionPage = ({ onAddToCart }) => {
+const PantCollectionPage = ({ onAddToCart, onProductSelect }) => {
   const [products, setProducts] = useState(FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState(true);
 
@@ -63,11 +63,6 @@ const PantCollectionPage = ({ onAddToCart }) => {
   const [filterOutOfStock, setFilterOutOfStock] = useState(true);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-
-  // Quick View Modal
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedSize, setSelectedSize] = useState('32');
-  const [quantity, setQuantity] = useState(1);
 
   // Fetch products from Express backend
   useEffect(() => {
@@ -92,6 +87,9 @@ const PantCollectionPage = ({ onAddToCart }) => {
 
   // Filter logic
   const filteredProducts = products.filter((product) => {
+    // Only display pants
+    if (product.category && product.category !== 'pant') return false;
+
     // Availability Filter
     if (!filterInStock && product.availability) return false;
     if (!filterOutOfStock && !product.availability) return false;
@@ -119,18 +117,7 @@ const PantCollectionPage = ({ onAddToCart }) => {
     setMaxPrice('');
   };
 
-  const handleQuickView = (product) => {
-    setSelectedProduct(product);
-    setSelectedSize(product.sizes[2] || '32');
-    setQuantity(1);
-  };
 
-  const handleAddToCart = () => {
-    if (onAddToCart && selectedProduct) {
-      onAddToCart(selectedProduct, selectedSize, quantity);
-      setSelectedProduct(null); // Close modal
-    }
-  };
 
   return (
     <div className="bg-[#f5f5f0] min-h-screen text-[#1a1a1a] font-body pb-20">
@@ -306,7 +293,7 @@ const PantCollectionPage = ({ onAddToCart }) => {
                 
                 {/* Image Container with Hover Swap */}
                 <div 
-                  onClick={() => handleQuickView(product)}
+                  onClick={() => onProductSelect && onProductSelect(product)}
                   className="relative w-full aspect-[3/4] overflow-hidden mb-5 bg-[#ebd9aa]/10 border border-[#e5e5e0] cursor-pointer"
                 >
                   {/* Secondary Image (Visible on Hover) */}
@@ -337,7 +324,7 @@ const PantCollectionPage = ({ onAddToCart }) => {
 
                 {/* Title */}
                 <h3 
-                  onClick={() => handleQuickView(product)}
+                  onClick={() => onProductSelect && onProductSelect(product)}
                   className="text-[17px] sm:text-[19px] text-[#1a1a1a] font-heading font-medium mb-1.5 hover:underline decoration-1 underline-offset-4 cursor-pointer"
                 >
                   {product.name}
@@ -361,102 +348,7 @@ const PantCollectionPage = ({ onAddToCart }) => {
         )}
       </div>
 
-      {/* Quick View / Size Options Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50 animate-fade-in">
-          <div className="bg-[#f5f5f0] border border-[#e5e5e0] max-w-2xl w-full p-6 sm:p-8 relative flex flex-col md:flex-row gap-6">
-            
-            {/* Close Button */}
-            <button 
-              onClick={() => setSelectedProduct(null)}
-              className="absolute top-4 right-4 text-[#1a1a1a] hover:opacity-70 transition-opacity"
-            >
-              <X size={20} />
-            </button>
 
-            {/* Left Column: Image */}
-            <div className="w-full md:w-1/2 aspect-[3/4] overflow-hidden bg-white">
-              <img 
-                src={selectedProduct.images[0]} 
-                alt={selectedProduct.name} 
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-
-            {/* Right Column: Options details */}
-            <div className="w-full md:w-1/2 flex flex-col justify-between text-left">
-              <div>
-                <h2 className="text-[20px] font-heading font-medium mb-2">{selectedProduct.name}</h2>
-                <div className="flex items-center text-[16px] mb-4">
-                  {selectedProduct.compareAtPrice && (
-                    <span className="line-through text-[#8c8c82] mr-3">
-                      {formatPrice(selectedProduct.compareAtPrice)}
-                    </span>
-                  )}
-                  <span className="font-semibold">{formatPrice(selectedProduct.price)}</span>
-                </div>
-                
-                <p className="text-[13px] text-[#6b6b66] font-sans mb-6">
-                  {selectedProduct.description}
-                </p>
-
-                {/* Size options list */}
-                <div className="mb-6">
-                  <label className="text-[12px] font-sans font-semibold uppercase tracking-wider block mb-2">
-                    Size
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProduct.sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-3 py-1.5 text-[13px] border font-sans font-medium transition-all ${
-                          selectedSize === size
-                            ? 'border-[#1a1a1a] bg-[#1a1a1a] text-white'
-                            : 'border-gray-300 hover:border-gray-400 bg-transparent'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quantity */}
-                <div className="mb-6 flex items-center gap-4">
-                  <label className="text-[12px] font-sans font-semibold uppercase tracking-wider block">
-                    Quantity
-                  </label>
-                  <div className="flex items-center border border-gray-300 font-sans">
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-1 text-[15px]"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 py-1 text-[14px] font-medium">{quantity}</span>
-                    <button 
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-1 text-[15px]"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Add to cart */}
-              <button 
-                onClick={handleAddToCart}
-                className="w-full py-4 bg-[#002349] text-white uppercase text-[13px] font-sans tracking-widest font-medium hover:opacity-90 transition-opacity"
-              >
-                Add to bag
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
     </div>
   );

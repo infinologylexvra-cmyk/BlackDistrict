@@ -32,6 +32,10 @@ const ProductSchema = new mongoose.Schema({
   availability: {
     type: Boolean,
     default: true
+  },
+  category: {
+    type: String,
+    default: 'pant'
   }
 }, {
   timestamps: true

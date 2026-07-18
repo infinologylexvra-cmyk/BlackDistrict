@@ -5,15 +5,22 @@ import ProductGrid from './components/ProductGrid';
 import PantCollectionPage from './components/PantCollectionPage';
 import ShirtCollectionPage from './components/ShirtCollectionPage';
 import AllCollectionsPage from './components/AllCollectionsPage';
+import ProductDescriptionPage from './components/ProductDescriptionPage';
+import CheckoutPage from './components/CheckoutPage';
+import SearchResultsPage from './components/SearchResultsPage';
 import ContactPage from './components/ContactPage';
 import Footer from './components/Footer';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('pant');
+  const [currentPage, setCurrentPage] = useState('home');
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  
+  // Dynamic product detail & search states
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Sync state with path on load
   useEffect(() => {
@@ -27,7 +34,7 @@ function App() {
     } else if (path === '/pages/contact') {
       setCurrentPage('contact');
     } else if (path === '/') {
-      setCurrentPage('pant'); // Default to pant to show collection first-hand
+      setCurrentPage('home'); // Default to home
     }
   }, []);
 
@@ -64,6 +71,24 @@ function App() {
     );
   };
 
+  const handleBuyNow = (product, size, quantity) => {
+    // Add to cart first so they checkout with this item
+    setCartItems((prevItems) => {
+      const existingIdx = prevItems.findIndex(
+        (item) => item._id === product._id && item.size === size
+      );
+      if (existingIdx > -1) {
+        const updated = [...prevItems];
+        updated[existingIdx].quantity += quantity;
+        return updated;
+      } else {
+        return [...prevItems, { ...product, size, quantity }];
+      }
+    });
+    // Redirect straight to checkout page
+    setCurrentPage('checkout');
+  };
+
   const handleCollectionsNavigation = (path) => {
     if (path === 'pant') {
       setCurrentPage('pant');
@@ -98,17 +123,73 @@ function App() {
         setIsSearchOpen={setIsSearchOpen}
         isAuthOpen={isAuthOpen}
         setIsAuthOpen={setIsAuthOpen}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onCheckout={() => {
+          setIsCartOpen(false);
+          setCurrentPage('checkout');
+        }}
       />
       
       <main className="flex-grow">
         {currentPage === 'pant' && (
-          <PantCollectionPage onAddToCart={handleAddToCart} />
+          <PantCollectionPage 
+            onAddToCart={handleAddToCart} 
+            onProductSelect={(prod) => {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+              window.history.pushState({}, '', `/products/${prod._id}`);
+            }}
+          />
         )}
         {currentPage === 'shirt' && (
-          <ShirtCollectionPage />
+          <ShirtCollectionPage 
+            onProductSelect={(prod) => {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+              window.history.pushState({}, '', `/products/${prod._id}`);
+            }}
+          />
         )}
         {currentPage === 'collections' && (
           <AllCollectionsPage onNavigate={handleCollectionsNavigation} />
+        )}
+        {currentPage === 'description' && (
+          <ProductDescriptionPage 
+            product={selectedProduct}
+            onBack={() => {
+              // Return to previous view category
+              if (selectedProduct && selectedProduct.category === 'shirt') {
+                setCurrentPage('shirt');
+              } else {
+                setCurrentPage('pant');
+              }
+              window.history.pushState({}, '', '/');
+            }}
+            onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
+          />
+        )}
+        {currentPage === 'checkout' && (
+          <CheckoutPage 
+            cartItems={cartItems}
+            onBack={() => setCurrentPage('pant')}
+            onClearCart={() => setCartItems([])}
+          />
+        )}
+        {currentPage === 'search' && (
+          <SearchResultsPage 
+            searchQuery={searchQuery}
+            onBack={() => {
+              setCurrentPage('pant');
+              setSearchQuery('');
+            }}
+            onProductSelect={(prod) => {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+              window.history.pushState({}, '', `/products/${prod._id}`);
+            }}
+          />
         )}
         {currentPage === 'contact' && (
           <ContactPage />
@@ -116,7 +197,13 @@ function App() {
         {currentPage === 'home' && (
           <>
             <Hero />
-            <ProductGrid />
+            <ProductGrid 
+              onProductSelect={(prod) => {
+                setSelectedProduct(prod);
+                setCurrentPage('description');
+                window.history.pushState({}, '', `/products/${prod._id}`);
+              }}
+            />
           </>
         )}
       </main>
