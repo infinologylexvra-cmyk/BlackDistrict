@@ -37,7 +37,7 @@ const FALLBACK_COMBOS = [
   }
 ];
 
-const ProductGrid = ({ onProductSelect }) => {
+const ProductGrid = ({ onProductSelect, onNavigate }) => {
   const [combos, setCombos] = useState(FALLBACK_COMBOS);
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'en');
   useEffect(() => {
@@ -135,6 +135,16 @@ const ProductGrid = ({ onProductSelect }) => {
           ))}
         </div>
         
+        {/* Centered View All Button */}
+        <div className="flex justify-center mt-12">
+          <button 
+            onClick={() => onNavigate && onNavigate('collections')}
+            className="bg-black text-white px-9 py-3.5 text-[13px] font-sans font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+          >
+            View all
+          </button>
+        </div>
+
       </div>
     </div>
   );

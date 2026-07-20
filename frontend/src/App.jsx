@@ -13,6 +13,7 @@ import ContactPage from './components/ContactPage';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import CataloguePage from './components/CataloguePage';
+import HomeCollections from './components/HomeCollections';
 import { API_BASE_URL } from './apiConfig';
 
 function App() {
@@ -306,7 +307,9 @@ function App() {
           <>
             <Hero />
             <HomePageInfo onNavigate={handleCollectionsNavigation} />
+            <HomeCollections onNavigate={handleCollectionsNavigation} />
             <ProductGrid 
+              onNavigate={handleCollectionsNavigation}
               onProductSelect={(prod) => {
                 setSelectedProduct(prod);
                 setCurrentPage('description');
