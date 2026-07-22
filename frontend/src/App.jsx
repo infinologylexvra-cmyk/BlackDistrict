@@ -146,7 +146,22 @@ function App() {
     } else if (path === '/checkout') {
       setCurrentPage('checkout');
     } else if (path.startsWith('/products/')) {
-      setCurrentPage('home');
+      const prodId = path.replace('/products/', '');
+      if (prodId) {
+        fetch(`${API_BASE_URL}/api/products/${prodId}`)
+          .then(res => res.json())
+          .then(prod => {
+            if (prod && prod._id) {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+            } else {
+              setCurrentPage('home');
+            }
+          })
+          .catch(() => setCurrentPage('home'));
+      } else {
+        setCurrentPage('home');
+      }
     } else if (path === '/') {
       setCurrentPage('home');
     } else {

@@ -106,6 +106,19 @@ const products = [
     onSale: true,
     availability: true,
     category: 'shirt'
+  },
+  {
+    name: 'BlackDistrict™ Demo Test Item (Rs. 1)',
+    price: 1,
+    compareAtPrice: 99,
+    images: [
+      '/image/collection-shirt.png'
+    ],
+    description: 'Special 1 Rupee demo item for testing Razorpay live checkout and payments.',
+    sizes: ['Free Size'],
+    onSale: true,
+    availability: true,
+    category: 'shirt'
   }
 ];
 
