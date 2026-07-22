@@ -3,6 +3,57 @@ import { API_BASE_URL } from '../apiConfig';
 import { translations } from '../utils/translations';
 import { Heart, Filter, Grid, SlidersHorizontal, ArrowRight, Eye, ShoppingBag } from 'lucide-react';
 
+const CATALOGUE_FALLBACKS = [
+  {
+    _id: 'cb1',
+    name: 'BlackDistrict™ Signature Linen Combo Set',
+    price: 2799,
+    compareAtPrice: 3999,
+    images: ['/image/combo-signature.jpg', '/image/collection-signature.webp', '/image/beige-pant-1.jpg'],
+    description: 'Our signature Cuban collar flax shirt paired with tailored classic linen pants. A complete ready-to-wear ensemble built for effortless luxury.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    _id: 'cb2',
+    name: 'BlackDistrict™ Riviera Resort Combo Set',
+    price: 2999,
+    compareAtPrice: 4299,
+    images: ['/image/combo-riviera.jpg', '/image/collection-summer-edit.jpg', '/image/white-pants-1.png'],
+    description: 'Retro resort linen shirt paired with classic straight white cotton pants. Coastal elegance redefined.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    _id: 'cb3',
+    name: 'BlackDistrict™ Executive Black Linen Set',
+    price: 2899,
+    compareAtPrice: 4099,
+    images: ['/image/collection-shirt.png', '/image/black-pant-1.webp'],
+    description: 'Cuban classic shirt matched with breathable solid black tailored drawstring pants.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    _id: 'cb4',
+    name: 'BlackDistrict™ Old Money Gurkha Combo Set',
+    price: 3199,
+    compareAtPrice: 4599,
+    images: ['/image/collection-gurkha.jpg', '/image/collection-signature.webp'],
+    description: 'Signature flax linen shirt paired with traditional military-inspired Gurkha double-buckle trousers.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  }
+];
+
 const CataloguePage = ({ onProductSelect, onNavigate, onAddToCart, wishlist = [], onToggleWishlist }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,15 +78,20 @@ const CataloguePage = ({ onProductSelect, onNavigate, onAddToCart, wishlist = []
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          // Filter out unwanted categories if any
           const valid = data.filter(p => p.category !== 'footwear' && p.category !== 'watches');
-          setProducts(valid);
+          const hasCombo = valid.some(p => (p.category || '').toLowerCase().includes('combo'));
+          if (!hasCombo) {
+            setProducts([...valid, ...CATALOGUE_FALLBACKS]);
+          } else {
+            setProducts(valid);
+          }
         } else {
-          setProducts([]);
+          setProducts(CATALOGUE_FALLBACKS);
         }
       })
       .catch(err => {
-        console.warn('Failed to load catalogue products from API:', err);
+        console.warn('Failed to load catalogue products from API, using fallbacks:', err);
+        setProducts(CATALOGUE_FALLBACKS);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -50,7 +106,13 @@ const CataloguePage = ({ onProductSelect, onNavigate, onAddToCart, wishlist = []
 
   // Filtering & Sorting
   const filteredProducts = products.filter(p => {
-    const matchesCat = selectedCategory === 'all' || p.category === selectedCategory;
+    const pCat = (p.category || '').toLowerCase().trim();
+    const sCat = (selectedCategory || 'all').toLowerCase().trim();
+    
+    const matchesCat = sCat === 'all' || 
+      pCat === sCat || 
+      (sCat === 'combo' && (pCat.includes('combo') || pCat.includes('set') || p.name?.toLowerCase().includes('combo')));
+
     const matchesPrice = p.price <= priceRange;
     return matchesCat && matchesPrice;
   }).sort((a, b) => {

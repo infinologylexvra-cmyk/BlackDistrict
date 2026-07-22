@@ -136,7 +136,7 @@ const products = [
     category: 'combo'
   },
   {
-    name: 'BlackDistrict™ Old Money Riviera Combo Set',
+    name: 'BlackDistrict™ Riviera Resort Combo Set',
     price: 2999,
     compareAtPrice: 4299,
     images: [
@@ -144,6 +144,34 @@ const products = [
       '/image/white-pants-1.png'
     ],
     description: 'Retro resort linen shirt paired with classic straight white cotton pants. Coastal elegance redefined.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    name: 'BlackDistrict™ Executive Black Linen Set',
+    price: 2899,
+    compareAtPrice: 4099,
+    images: [
+      '/image/collection-shirt.png',
+      '/image/black-pant-1.webp'
+    ],
+    description: 'Cuban classic shirt matched with breathable solid black tailored drawstring pants. Stealth luxury aesthetics for modern gentlemen.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    name: 'BlackDistrict™ Old Money Gurkha Combo Set',
+    price: 3199,
+    compareAtPrice: 4599,
+    images: [
+      '/image/collection-gurkha.jpg',
+      '/image/collection-signature.webp'
+    ],
+    description: 'Signature flax linen shirt paired with traditional military-inspired Gurkha double-buckle trousers.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,

@@ -20,6 +20,7 @@ import Testimonials from './components/Testimonials';
 import LimitedDropBar from './components/LimitedDropBar';
 import Newsletter from './components/Newsletter';
 import ProductGrid from './components/ProductGrid';
+import NotFoundPage from './components/NotFoundPage';
 import { API_BASE_URL } from './apiConfig';
 
 function App() {
@@ -151,15 +152,15 @@ function App() {
                 setSelectedProduct(prod);
                 setCurrentPage('description');
               } else {
-                setCurrentPage('home');
+                setCurrentPage('notfound');
               }
             })
-            .catch(() => setCurrentPage('home'));
+            .catch(() => setCurrentPage('notfound'));
         } else {
-          setCurrentPage('home');
+          setCurrentPage('notfound');
         }
       } else {
-        setCurrentPage('home');
+        setCurrentPage('notfound');
       }
     };
 
@@ -387,23 +388,18 @@ function App() {
             loadCategories={loadCategories}
           />
         )}
-        {currentPage === '404' && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] py-20 px-6 text-center space-y-6 font-sans">
-            <h1 className="text-[72px] font-heading font-black text-gray-900 leading-none">404</h1>
-            <h2 className="text-[20px] font-bold tracking-widest text-[#c5a880] uppercase">Page Not Found</h2>
-            <p className="text-[14px] text-gray-500 max-w-sm leading-relaxed">
-              The page you are looking for does not exist, has been removed, or has been relocated.
-            </p>
-            <button 
-              onClick={() => {
-                setCurrentPage('home');
-                window.history.pushState({}, '', '/');
-              }}
-              className="px-9 py-3.5 bg-black hover:opacity-90 text-white font-sans text-[11px] font-bold uppercase tracking-widest transition-opacity"
-            >
-              Back To Home
-            </button>
-          </div>
+        {(currentPage === 'notfound' || currentPage === '404') && (
+          <NotFoundPage 
+            onNavigate={(page) => {
+              setCurrentPage(page);
+              if (page === 'shirt') window.history.pushState({}, '', '/shirts');
+              else if (page === 'pant') window.history.pushState({}, '', '/pants');
+              else if (page === 'combo') window.history.pushState({}, '', '/combo');
+              else if (page === 'catalogue') window.history.pushState({}, '', '/catalogue');
+              else if (page === 'contact') window.history.pushState({}, '', '/pages/contact');
+              else window.history.pushState({}, '', '/');
+            }} 
+          />
         )}
         {currentPage === 'home' && (
           <>

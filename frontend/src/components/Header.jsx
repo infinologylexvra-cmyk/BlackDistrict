@@ -117,15 +117,18 @@ const Header = ({
       if (window.google && window.google.accounts) {
         const btnContainer = document.getElementById("google-button-container");
         if (btnContainer && !btnContainer.hasChildNodes()) {
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleLoginResponse
-          });
-          window.google.accounts.id.renderButton(btnContainer, {
-            theme: "outline",
-            size: "large",
-            width: btnContainer.clientWidth || 320
-          });
+          try {
+            window.google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleGoogleLoginResponse,
+              auto_select: false // Prevent automatic Google One-Tap popup/fluctuations
+            });
+            window.google.accounts.id.renderButton(btnContainer, {
+              theme: "outline",
+              size: "large",
+              width: 320
+            });
+          } catch (e) {}
         }
       }
     };
@@ -139,13 +142,19 @@ const Header = ({
       script.onload = initializeGoogleSignIn;
       document.body.appendChild(script);
     } else {
-      const timer = setTimeout(initializeGoogleSignIn, 100);
+      const timer = setTimeout(initializeGoogleSignIn, 150);
       return () => clearTimeout(timer);
     }
   }, [isAuthOpen, isLoggedIn, activeAuthTab]);
 
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
   const handleNavClick = (page, e) => {
     if (e) e.preventDefault();
+    setIsAuthOpen(false); // ALWAYS close auth modal on route change
+    setShowProfileDropdown(false);
+    setIsSearchOpen(false);
+    setIsCartOpen(false);
     setCurrentPage(page);
     if (page === 'pant') {
       window.history.pushState({}, '', '/pants');
@@ -425,16 +434,69 @@ const Header = ({
                   >
                     <Search size={18} strokeWidth={1.5} />
                   </button>
-                  <button 
-                    onClick={() => setIsAuthOpen(true)}
-                    className="text-neutral-900 hover:text-neutral-500 transition-colors relative"
-                  >
-                    <User size={18} strokeWidth={1.5} />
-                    {isLoggedIn && (
-                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-green-500 text-[10px] text-white p-1">
-                      </span>
+                  <div className="relative">
+                    <button 
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          setShowProfileDropdown(prev => !prev);
+                        } else {
+                          setIsAuthOpen(true);
+                        }
+                      }}
+                      className="text-neutral-900 hover:text-neutral-500 transition-colors relative flex items-center space-x-1"
+                      title={isLoggedIn ? loggedInUser?.name : 'Account Login'}
+                    >
+                      <User size={18} strokeWidth={1.5} />
+                      {isLoggedIn && (
+                        <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                      )}
+                    </button>
+
+                    {/* Profile Dropdown Menu for Logged In Users */}
+                    {showProfileDropdown && isLoggedIn && (
+                      <div className="absolute right-0 top-9 w-64 bg-white border border-neutral-200 rounded-xl shadow-2xl z-50 p-4 font-sans text-left space-y-3">
+                        <div className="border-b border-neutral-100 pb-2">
+                          <div className="font-bold text-[13px] text-gray-900 truncate">{loggedInUser?.name || 'Customer'}</div>
+                          <div className="text-[11px] text-gray-400 truncate">{loggedInUser?.email || loggedInUser?.phone || 'BlackDistrict Member'}</div>
+                        </div>
+                        <div className="space-y-1 text-[12px] font-medium text-gray-700">
+                          <button 
+                            onClick={() => {
+                              setShowProfileDropdown(false);
+                              handleNavClick('catalogue');
+                            }}
+                            className="w-full text-left py-1.5 px-2 hover:bg-neutral-50 rounded flex items-center space-x-2"
+                          >
+                            <span>🛍️ Explore Catalogue</span>
+                          </button>
+                          {(loggedInUser?.email?.includes('admin') || loggedInUser?.email === 'dk897869@gmail.com') && (
+                            <button 
+                              onClick={() => {
+                                setShowProfileDropdown(false);
+                                handleNavClick('admin');
+                              }}
+                              className="w-full text-left py-1.5 px-2 hover:bg-neutral-50 rounded text-amber-700 font-bold flex items-center space-x-2"
+                            >
+                              <span>⚡ Admin Dashboard</span>
+                            </button>
+                          )}
+                        </div>
+                        <div className="border-t border-neutral-100 pt-2">
+                          <button 
+                            onClick={() => {
+                              setIsLoggedIn(false);
+                              setLoggedInUser(null);
+                              localStorage.removeItem('user');
+                              setShowProfileDropdown(false);
+                            }}
+                            className="w-full text-left py-1.5 px-2 text-red-600 hover:bg-red-50 rounded text-[12px] font-bold flex items-center space-x-2"
+                          >
+                            <span>🚪 Log Out</span>
+                          </button>
+                        </div>
+                      </div>
                     )}
-                  </button>
+                  </div>
                   <button 
                     onClick={() => setIsWishlistOpen(true)}
                     className="text-neutral-900 hover:text-neutral-500 transition-colors relative"
@@ -927,8 +989,8 @@ const Header = ({
                       </div>
 
                       {/* Google Auth Button styled like mockup */}
-                      <div className="relative w-full flex justify-center mt-2 min-h-[44px]">
-                        <div id="google-button-container" className="w-full"></div>
+                      <div className="relative w-full flex justify-center items-center mt-2 min-h-[44px] h-[44px] overflow-hidden">
+                        <div id="google-button-container" className="w-full flex justify-center items-center min-h-[44px] h-[44px]"></div>
                       </div>
                     </div>
                   </div>

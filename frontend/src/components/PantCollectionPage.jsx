@@ -135,7 +135,7 @@ const PantCollectionPage = ({
   // Filter logic
   const filteredProducts = products.filter((product) => {
     // Only display matching category
-    if (product.category && product.category !== category) return false;
+    if (product.category && product.category.toLowerCase().trim() !== category.toLowerCase().trim()) return false;
 
     // Availability Filter
     if (!filterInStock && product.availability) return false;
