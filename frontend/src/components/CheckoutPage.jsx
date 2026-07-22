@@ -46,8 +46,8 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
 
   // Coupon code states
   const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState('PREPAID@100'); // Default prepaid discount code
-  const [couponDiscount, setCouponDiscount] = useState(100);
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponMessage, setCouponMessage] = useState('');
 
   // Custom Payment Options States
@@ -114,11 +114,13 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const originalSubtotal = cartItems.reduce((acc, item) => acc + ((item.compareAtPrice || item.price * 1.5) * item.quantity), 0);
   
-  // Math values matching screenshot
-  const discountAmount = originalSubtotal - subtotal;
-  const upiDiscount = Math.round((subtotal - couponDiscount) * 0.1); // 10% prepaid discount
-  const finalUpiPayable = subtotal - couponDiscount - upiDiscount;
-  const finalCodPayable = subtotal - couponDiscount;
+  // Safe Math calculation for Rs.1 / custom amounts
+  const discountAmount = Math.max(0, originalSubtotal - subtotal);
+  const effectiveCouponDiscount = Math.min(couponDiscount, Math.max(0, subtotal - 1));
+  const remainingSubtotal = Math.max(1, subtotal - effectiveCouponDiscount);
+  const upiDiscount = remainingSubtotal > 10 ? Math.round(remainingSubtotal * 0.1) : 0;
+  const finalUpiPayable = Math.max(1, Math.round(remainingSubtotal - upiDiscount));
+  const finalCodPayable = Math.max(1, Math.round(remainingSubtotal));
 
   // Pin Code verification API trigger
   useEffect(() => {
@@ -132,7 +134,7 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
             const details = data[0].PostOffice[0];
             setCity(details.District || details.Block || details.Name);
             setState(details.State.toUpperCase());
-            setPincodeMessage('Pincode verified successfully via API.');
+            setPincodeMessage('Pincode verified successfully.');
           } else {
             setPincodeMessage('Pincode not found. Please enter details manually.');
           }
@@ -309,7 +311,7 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
         prefill: {
           name: shippingDetails.name,
           email: shippingDetails.email,
-          contact: '+919317902609'
+          contact: shippingDetails.phone || (phone ? `+91${phone.replace('+91', '')}` : '')
         },
         notes: {
           address: shippingDetails.address
