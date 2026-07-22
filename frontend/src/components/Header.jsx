@@ -148,9 +148,11 @@ const Header = ({
     if (e) e.preventDefault();
     setCurrentPage(page);
     if (page === 'pant') {
-      window.history.pushState({}, '', '/collections/pantts');
+      window.history.pushState({}, '', '/pants');
     } else if (page === 'shirt') {
-      window.history.pushState({}, '', '/collections/shirts');
+      window.history.pushState({}, '', '/shirts');
+    } else if (page === 'catalogue') {
+      window.history.pushState({}, '', '/catalogue');
     } else if (page === 'contact') {
       window.history.pushState({}, '', '/pages/contact');
     } else if (page === 'collections' || page === 'all') {
@@ -261,10 +263,17 @@ const Header = ({
       setOtpLoading(false);
       return;
     }
-    if (isSignUpAction && !name) {
-      setAuthError('Please enter your name.');
-      setOtpLoading(false);
-      return;
+    if (isSignUpAction) {
+      if (!name || !name.trim()) {
+        setAuthError('Please enter your name.');
+        setOtpLoading(false);
+        return;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
+        setAuthError('Name should contain letters and spaces only.');
+        setOtpLoading(false);
+        return;
+      }
     }
     if (password.length < 6) {
       setAuthError('Password must be at least 6 characters.');
@@ -392,6 +401,14 @@ const Header = ({
                   </a>
 
                   <a 
+                    href="/catalogue" 
+                    onClick={(e) => handleNavClick('catalogue', e)} 
+                    className={currentPage === 'catalogue' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
+                  >
+                    CATALOGUE
+                  </a>
+
+                  <a 
                     href="/pages/contact" 
                     onClick={(e) => handleNavClick('contact', e)} 
                     className={currentPage === 'contact' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
@@ -511,6 +528,7 @@ const Header = ({
               {[
                 { label: 'Home', page: 'home' },
                 ...(categories || []).map(cat => ({ label: cat.label, page: cat.name })),
+                { label: 'Catalogue', page: 'catalogue' },
                 { label: 'Collections', page: 'all' },
                 { label: 'Contact Us', page: 'contact' }
               ].map(item => (
@@ -806,7 +824,7 @@ const Header = ({
                                 required 
                                 placeholder="Enter your full name" 
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                                 className="w-full pl-10 pr-4 py-3 border border-neutral-200 rounded text-[13.5px] focus:outline-none focus:border-black font-medium bg-neutral-50"
                               />
                             </div>

@@ -10,7 +10,20 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !comment) return;
+    const cleanName = name.trim();
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    if (!cleanName || !email || !comment) return;
+
+    if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
+      alert('Name should contain letters and spaces only.');
+      return;
+    }
+
+    if (cleanPhone && cleanPhone.length !== 10) {
+      alert('Mobile number must be exactly 10 digits.');
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/contact`, {
@@ -66,7 +79,7 @@ const ContactPage = () => {
               <input 
                 type="text" 
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                 required
                 placeholder="Name"
                 className="border border-[#1a1a1a] px-4 py-3 bg-[#f5f5f0] text-[14px] font-sans focus:outline-none focus:ring-0 w-full placeholder-gray-500 rounded-none"
@@ -84,8 +97,9 @@ const ContactPage = () => {
             {/* Row 2: Phone number */}
             <input 
               type="tel" 
+              maxLength={10}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="Phone number"
               className="border border-[#1a1a1a] px-4 py-3 bg-[#f5f5f0] text-[14px] font-sans focus:outline-none focus:ring-0 w-full placeholder-gray-500 rounded-none"
             />

@@ -5,6 +5,7 @@ import HomePageInfo from './components/HomePageInfo';
 import PantCollectionPage from './components/PantCollectionPage';
 import ShirtCollectionPage from './components/ShirtCollectionPage';
 import AllCollectionsPage from './components/AllCollectionsPage';
+import CataloguePage from './components/CataloguePage';
 import ProductDescriptionPage from './components/ProductDescriptionPage';
 import CheckoutPage from './components/CheckoutPage';
 import SearchResultsPage from './components/SearchResultsPage';
@@ -119,55 +120,52 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Sync state with path on load
+  // Sync state with path on load & popstate (handles browser navigation and direct URLs)
   useEffect(() => {
-    const path = window.location.pathname;
-    
-    if (path.startsWith('/collections/')) {
-      const catName = path.replace('/collections/', '');
-      // Normalize plural/variant category names
-      if (catName === 'pantts' || catName === 'pants') {
-        setCurrentPage('pant');
-      } else if (catName === 'shirts') {
+    const syncRoute = () => {
+      const rawPath = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+      
+      if (rawPath === '/shirt' || rawPath === '/shirts' || rawPath === '/collections/shirt' || rawPath === '/collections/shirts') {
         setCurrentPage('shirt');
-      } else if (catName === 'combos') {
+      } else if (rawPath === '/pant' || rawPath === '/pants' || rawPath === '/pantts' || rawPath === '/collections/pant' || rawPath === '/collections/pants' || rawPath === '/collections/pantts') {
+        setCurrentPage('pant');
+      } else if (rawPath === '/combo' || rawPath === '/combos' || rawPath === '/collections/combo' || rawPath === '/collections/combos') {
         setCurrentPage('combo');
-      } else if (catName === 'all') {
+      } else if (rawPath === '/collections' || rawPath === '/collections/all' || rawPath === '/all') {
         setCurrentPage('collections');
-      } else {
-        setCurrentPage(catName);
-      }
-    } else if (path === '/collections') {
-      setCurrentPage('collections');
-    } else if (path === '/pages/contact') {
-      setCurrentPage('contact');
-    } else if (path === '/admin') {
-      setCurrentPage('admin');
-    } else if (path === '/checkout') {
-      setCurrentPage('checkout');
-    } else if (path.startsWith('/products/')) {
-      const prodId = path.replace('/products/', '');
-      if (prodId) {
-        fetch(`${API_BASE_URL}/api/products/${prodId}`)
-          .then(res => res.json())
-          .then(prod => {
-            if (prod && prod._id) {
-              setSelectedProduct(prod);
-              setCurrentPage('description');
-            } else {
-              setCurrentPage('home');
-            }
-          })
-          .catch(() => setCurrentPage('home'));
+      } else if (rawPath === '/catalogue' || rawPath === '/catalog') {
+        setCurrentPage('catalogue');
+      } else if (rawPath === '/pages/contact' || rawPath === '/contact') {
+        setCurrentPage('contact');
+      } else if (rawPath === '/admin') {
+        setCurrentPage('admin');
+      } else if (rawPath === '/checkout') {
+        setCurrentPage('checkout');
+      } else if (rawPath.startsWith('/products/')) {
+        const prodId = rawPath.replace('/products/', '');
+        if (prodId) {
+          fetch(`${API_BASE_URL}/api/products/${prodId}`)
+            .then(res => res.json())
+            .then(prod => {
+              if (prod && prod._id) {
+                setSelectedProduct(prod);
+                setCurrentPage('description');
+              } else {
+                setCurrentPage('home');
+              }
+            })
+            .catch(() => setCurrentPage('home'));
+        } else {
+          setCurrentPage('home');
+        }
       } else {
         setCurrentPage('home');
       }
-    } else if (path === '/') {
-      setCurrentPage('home');
-    } else {
-      // Fallback to home instead of 404 for unknown paths
-      setCurrentPage('home');
-    }
+    };
+
+    syncRoute();
+    window.addEventListener('popstate', syncRoute);
+    return () => window.removeEventListener('popstate', syncRoute);
   }, []);
 
   // Scroll to top whenever the page changes
@@ -307,6 +305,19 @@ function App() {
         ))}
         {(currentPage === 'collections' || currentPage === 'all') && (
           <AllCollectionsPage onNavigate={handleCollectionsNavigation} />
+        )}
+        {currentPage === 'catalogue' && (
+          <CataloguePage 
+            onProductSelect={(prod) => {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+              window.history.pushState({}, '', `/products/${prod._id}`);
+            }}
+            onNavigate={handleCollectionsNavigation}
+            onAddToCart={handleAddToCart}
+            wishlist={wishlist}
+            onToggleWishlist={handleToggleWishlist}
+          />
         )}
         {currentPage === 'description' && (
           <ProductDescriptionPage 

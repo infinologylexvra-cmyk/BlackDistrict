@@ -100,8 +100,14 @@ const ProductDescriptionPage = ({ product, onBack, onAddToCart, onBuyNow }) => {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!reviewName || !reviewComment) {
+    const cleanName = reviewName.trim();
+    if (!cleanName || !reviewComment.trim()) {
       setReviewMessage('Please enter your name and comment.');
+      return;
+    }
+
+    if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
+      setReviewMessage('Name should contain letters and spaces only.');
       return;
     }
 
@@ -445,7 +451,7 @@ const ProductDescriptionPage = ({ product, onBack, onAddToCart, onBuyNow }) => {
                     required
                     placeholder="Enter your name"
                     value={reviewName}
-                    onChange={(e) => setReviewName(e.target.value)}
+                    onChange={(e) => setReviewName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                     className="px-3 py-2 border border-gray-300 focus:outline-none focus:border-black font-semibold text-gray-700 bg-white"
                   />
                 </div>

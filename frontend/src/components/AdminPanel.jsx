@@ -27,16 +27,22 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
   const [dashDateFilter, setDashDateFilter] = useState('All Time'); // 'All Time', 'Today', 'Yesterday', 'This Week', 'This Month'
   const [showDashDateMenu, setShowDashDateMenu] = useState(false);
 
-  // Reports Date Filters
-  const [repFromDate, setRepFromDate] = useState('2026-07-11');
+  // Reports Date Filters (Dynamic to current date and month start)
+  const getTodayStr = () => new Date().toISOString().split('T')[0];
+  const getMonthStartStr = () => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+  };
+
+  const [repFromDate, setRepFromDate] = useState(getMonthStartStr());
   const [repFromTime, setRepFromTime] = useState('00:00');
-  const [repToDate, setRepToDate] = useState('2026-07-18');
+  const [repToDate, setRepToDate] = useState(getTodayStr());
   const [repToTime, setRepToTime] = useState('23:59');
-  const [repQuickFilter, setRepQuickFilter] = useState('This Week');
+  const [repQuickFilter, setRepQuickFilter] = useState('This Month');
   const [appliedFilters, setAppliedFilters] = useState({
-    fromDate: '2026-07-11',
+    fromDate: getMonthStartStr(),
     fromTime: '00:00',
-    toDate: '2026-07-18',
+    toDate: getTodayStr(),
     toTime: '23:59'
   });
 
@@ -257,7 +263,14 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
       fetchAdminData();
     }
   }, [isAuthorized]);
-  // Real-time polling effect for new orders/notifications
+  
+  // useRef to keep orders ref fresh inside setInterval closure
+  const ordersRef = React.useRef(orders);
+  useEffect(() => {
+    ordersRef.current = orders;
+  }, [orders]);
+
+  // Real-time polling effect for new orders/notifications (every 4s)
   useEffect(() => {
     if (!isAuthorized) return;
 
@@ -266,28 +279,29 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            // Check if there are new orders (orders count increased)
-            if (orders.length > 0 && data.length > orders.length) {
-              const diffCount = data.length - orders.length;
-              // Get the newest orders (assuming sorted by date desc or diffing IDs)
-              const newOrdersList = data.filter(newO => !orders.some(oldO => oldO._id === newO._id));
+            const currentOrders = ordersRef.current;
+            
+            // Check for newly arrived orders
+            if (currentOrders.length > 0 && data.length > currentOrders.length) {
+              const newOrdersList = data.filter(newO => !currentOrders.some(oldO => (oldO._id === newO._id || oldO.orderId === newO.orderId)));
               
               newOrdersList.forEach(newO => {
                 const formattedId = newO.orderId ? newO.orderId.slice(-6).toUpperCase() : 'NEW';
-                const amt = newO.amount ? (newO.amount / 100).toFixed(2) : '0.00';
-                const msg = `New Order #ORD-${formattedId} received! Amount: Rs. ${amt}`;
+                const rawAmt = newO.amount || 0;
+                const displayAmt = rawAmt > 500 ? (rawAmt / 100).toFixed(0) : rawAmt;
+                const msg = `⚡ Instant Payment Received! Order #${formattedId} for Rs. ${displayAmt}`;
                 
                 // 1. Show Toast
-                setToastNotification({ id: newO._id, message: msg });
+                setToastNotification({ id: newO._id || Date.now(), message: msg });
                 
-                // 2. Add Notification
+                // 2. Add Notification to top bar dropdown
                 setNotifications(prev => [
                   { id: Date.now().toString() + Math.random(), type: 'order', message: msg, date: new Date().toISOString(), read: false },
                   ...prev
                 ]);
               });
 
-              // Play a soft notification audio beep if possible
+              // Audio notification chime
               try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -295,22 +309,20 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioContext.currentTime); // D5 note
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
                 oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
-              } catch (e) {
-                console.warn('Audio feedback failed:', e);
-              }
+                oscillator.stop(audioContext.currentTime + 0.35);
+              } catch (e) {}
             }
             setOrders(data);
           }
         })
-        .catch(err => console.error('Error polling admin orders:', err));
-    }, 8000);
+        .catch(err => console.warn('Realtime polling error:', err.message));
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [isAuthorized, orders]);
+  }, [isAuthorized]);
 
   // Clear toast notifications automatically
   useEffect(() => {
@@ -1879,18 +1891,23 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
         {/* Reports Tab */}
         {activeTab === 'reports' && (() => {
           // Calculate filtered report orders
-          const repStart = new Date(`${appliedFilters.fromDate}T${appliedFilters.fromTime}`);
-          const repEnd = new Date(`${appliedFilters.toDate}T${appliedFilters.toTime}`);
+          const repStart = appliedFilters.fromDate ? new Date(`${appliedFilters.fromDate}T${appliedFilters.fromTime || '00:00'}`) : new Date(0);
+          const repEnd = appliedFilters.toDate ? new Date(`${appliedFilters.toDate}T${appliedFilters.toTime || '23:59'}`) : new Date(8640000000000000);
           const filteredRepOrders = orders.filter(o => {
+            if (!o.createdAt) return true;
             const d = new Date(o.createdAt);
             return d >= repStart && d <= repEnd;
           });
 
-          // Metrics computations
-          const repRevenue = filteredRepOrders.reduce((sum, o) => sum + (o.status === 'success' || o.status === 'Paid' || o.status === 'paid' ? o.amount : 0), 0);
+          // Metrics computations (Handle both direct Rupee amounts and Paise amounts)
+          const getOrderRupees = (o) => {
+            const raw = o.amount || 0;
+            return raw > 50000 ? Math.round(raw / 100) : raw;
+          };
+          const repRevenue = filteredRepOrders.reduce((sum, o) => sum + getOrderRupees(o), 0);
           const repOrdersCount = filteredRepOrders.length;
           const repAvgVal = repOrdersCount > 0 ? Math.round(repRevenue / repOrdersCount) : 0;
-          const repItemsSold = filteredRepOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + (i.quantity || 1), 0), 0);
+          const repItemsSold = filteredRepOrders.reduce((sum, o) => sum + ((o.items && Array.isArray(o.items)) ? o.items.reduce((s, i) => s + (i.quantity || 1), 0) : 1), 0);
 
           // Handle Excel Download (CSV format client side)
           const downloadExcel = () => {

@@ -195,13 +195,27 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
 
   const handleAddressSubmit = (e) => {
     e.preventDefault();
-    if (!pincode || !city || !state || !flat || !apartment || !name || !email || !phone) {
+    const cleanName = name.trim();
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    if (!pincode || !city || !state || !flat || !apartment || !cleanName || !email || !cleanPhone) {
       alert('Please fill in all required fields.');
       return;
     }
+
+    if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
+      alert('Name should contain letters and spaces only.');
+      return;
+    }
+
+    if (cleanPhone.length !== 10) {
+      alert('Mobile number must be exactly 10 digits.');
+      return;
+    }
+
     // Save address locally so it's not pre-filled for others but remembered for this user
     localStorage.setItem('savedAddress', JSON.stringify({
-      pincode, city, state, flat, apartment, name, email, phone, addressType
+      pincode, city, state, flat, apartment, name: cleanName, email, phone: cleanPhone, addressType
     }));
     setShowAddressUpdated(true);
     setStep('payment');
@@ -537,7 +551,7 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
                   type="text" 
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
                   className="px-3.5 py-2.5 border border-gray-300 rounded text-[13px] focus:outline-none focus:border-black font-semibold text-gray-700"
                 />
               </div>
@@ -564,7 +578,7 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
                     required
                     maxLength={10}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="px-3 py-2.5 text-[13px] focus:outline-none w-full font-semibold text-gray-700"
                   />
                 </div>
