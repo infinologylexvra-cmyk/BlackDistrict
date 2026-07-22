@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, CreditCard, Mail, BarChart2, LogOut, Search, Clock, Users, ArrowUpRight, Plus, Trash2, CheckCircle2, AlertTriangle, Layers, MessageSquare, Star, Calendar, Bell, ChevronDown, ShoppingBag, Box, ArrowRight } from 'lucide-react';
+import { Shield, CreditCard, Mail, BarChart2, LogOut, Search, Clock, Users, ArrowUpRight, Plus, Trash2, CheckCircle2, AlertTriangle, Layers, MessageSquare, Star, Calendar, Bell, ChevronDown, ShoppingBag, Box, ArrowRight, Edit, X } from 'lucide-react';
 import { API_BASE_URL } from '../apiConfig';
 import { translations } from '../utils/translations';
 
 const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  // 24-Hour Admin Auth Session Persistence across page refreshes
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    try {
+      const authTime = localStorage.getItem('adminAuthTime');
+      const isAuth = localStorage.getItem('adminAuthorized');
+      if (isAuth === 'true' && authTime) {
+        const elapsed = Date.now() - Number(authTime);
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000; // 1 Day
+        if (elapsed < ONE_DAY_MS) {
+          return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  });
   const [activeTab, setActiveTab] = useState('dashboard');
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
 
@@ -92,12 +106,19 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
   const [showSalesChartMenu, setShowSalesChartMenu] = useState(false);
 
   // Notifications State
-  const [notifications, setNotifications] = useState([
-    { id: '1', type: 'order', message: 'New Order #ORD-Q3CI received! Amount: Rs. 1,799.00', date: new Date(Date.now() - 3600000).toISOString(), read: false },
-    { id: '2', type: 'contact', message: 'New customer message received from Legend 7264.', date: new Date(Date.now() - 7200000).toISOString(), read: false }
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [toastNotification, setToastNotification] = useState(null);
+
+  // Edit Product Modal States
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editProdName, setEditProdName] = useState('');
+  const [editProdPrice, setEditProdPrice] = useState('');
+  const [editProdComparePrice, setEditProdComparePrice] = useState('');
+  const [editProdImages, setEditProdImages] = useState('');
+  const [editProdDesc, setEditProdDesc] = useState('');
+  const [editProdCategory, setEditProdCategory] = useState('pant');
+  const [editProdAvailability, setEditProdAvailability] = useState(true);
 
   // Add Product Form States
   const [newProdName, setNewProdName] = useState('');
@@ -108,6 +129,37 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
   const [newProdCategory, setNewProdCategory] = useState(categories[0]?.name || 'pant');
   const [newProdAvailability, setNewProdAvailability] = useState(true);
   const [prodFormMessage, setProdFormMessage] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleCloudinaryUpload = (e, callback) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: reader.result })
+        });
+        const data = await res.json();
+        if (res.ok && data.url) {
+          callback(data.url);
+          alert('Image uploaded to Cloudinary successfully!');
+        } else {
+          alert(data.message || 'Cloudinary upload failed.');
+        }
+      } catch (err) {
+        console.error('Cloudinary upload error:', err);
+        alert('Error connecting to Cloudinary upload server.');
+      } finally {
+        setUploadingImage(false);
+      }
+    };
+  };
 
   // Category management hooks
   const [newCatName, setNewCatName] = useState('');
@@ -258,50 +310,79 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
       .catch(err => console.error('Error fetching admin settings:', err));
   };
 
+  // Rebuild notification list dynamically whenever orders, contacts, or reviews change
+  useEffect(() => {
+    const list = [];
+    (orders || []).forEach(o => {
+      const formattedId = o.orderId ? o.orderId.slice(-6).toUpperCase() : 'ORD';
+      const rawAmt = o.amount || 0;
+      const displayAmt = rawAmt > 50000 ? Math.round(rawAmt / 100) : rawAmt;
+      list.push({
+        id: `ord_${o._id || o.orderId || Math.random()}`,
+        type: 'order',
+        message: `New Order #${formattedId} received! Amount: Rs. ${displayAmt}`,
+        date: o.createdAt || new Date().toISOString(),
+        read: false
+      });
+    });
+    (contacts || []).forEach(c => {
+      list.push({
+        id: `cnt_${c._id || Math.random()}`,
+        type: 'contact',
+        message: `New Contact Inquiry from ${c.name || 'Customer'} (${c.email || 'Message'})`,
+        date: c.createdAt || new Date().toISOString(),
+        read: false
+      });
+    });
+    (reviews || []).forEach(r => {
+      list.push({
+        id: `rev_${r._id || Math.random()}`,
+        type: 'review',
+        message: `New ${r.rating || 5}-Star Review from ${r.name || 'Customer'}`,
+        date: r.createdAt || new Date().toISOString(),
+        read: false
+      });
+    });
+
+    list.sort((a, b) => new Date(b.date) - new Date(a.date));
+    setNotifications(list.slice(0, 40));
+  }, [orders, contacts, reviews]);
+
   useEffect(() => {
     if (isAuthorized) {
       fetchAdminData();
     }
   }, [isAuthorized]);
   
-  // useRef to keep orders ref fresh inside setInterval closure
+  // useRef to keep refs fresh inside setInterval closure
   const ordersRef = React.useRef(orders);
-  useEffect(() => {
-    ordersRef.current = orders;
-  }, [orders]);
+  const contactsRef = React.useRef(contacts);
+  const reviewsRef = React.useRef(reviews);
 
-  // Real-time polling effect for new orders/notifications (every 4s)
+  useEffect(() => { ordersRef.current = orders; }, [orders]);
+  useEffect(() => { contactsRef.current = contacts; }, [contacts]);
+  useEffect(() => { reviewsRef.current = reviews; }, [reviews]);
+
+  // Real-time polling effect for new orders, contacts, and reviews (every 4s)
   useEffect(() => {
     if (!isAuthorized) return;
 
     const interval = setInterval(() => {
+      // 1. Poll Orders
       fetch(`${API_BASE_URL}/api/payment/orders`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
             const currentOrders = ordersRef.current;
-            
-            // Check for newly arrived orders
             if (currentOrders.length > 0 && data.length > currentOrders.length) {
               const newOrdersList = data.filter(newO => !currentOrders.some(oldO => (oldO._id === newO._id || oldO.orderId === newO.orderId)));
-              
               newOrdersList.forEach(newO => {
                 const formattedId = newO.orderId ? newO.orderId.slice(-6).toUpperCase() : 'NEW';
                 const rawAmt = newO.amount || 0;
-                const displayAmt = rawAmt > 500 ? (rawAmt / 100).toFixed(0) : rawAmt;
+                const displayAmt = rawAmt > 50000 ? Math.round(rawAmt / 100) : rawAmt;
                 const msg = `⚡ Instant Payment Received! Order #${formattedId} for Rs. ${displayAmt}`;
-                
-                // 1. Show Toast
                 setToastNotification({ id: newO._id || Date.now(), message: msg });
-                
-                // 2. Add Notification to top bar dropdown
-                setNotifications(prev => [
-                  { id: Date.now().toString() + Math.random(), type: 'order', message: msg, date: new Date().toISOString(), read: false },
-                  ...prev
-                ]);
               });
-
-              // Audio notification chime
               try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
@@ -318,7 +399,38 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
             setOrders(data);
           }
         })
-        .catch(err => console.warn('Realtime polling error:', err.message));
+        .catch(() => {});
+
+      // 2. Poll Contacts
+      fetch(`${API_BASE_URL}/api/contact`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const currentContacts = contactsRef.current;
+            if (currentContacts.length > 0 && data.length > currentContacts.length) {
+              const newC = data[0];
+              setToastNotification({ id: newC._id || Date.now(), message: `📩 New Contact Message from ${newC.name || 'Customer'}` });
+            }
+            setContacts(data);
+          }
+        })
+        .catch(() => {});
+
+      // 3. Poll Reviews
+      fetch(`${API_BASE_URL}/api/reviews`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const currentReviews = reviewsRef.current;
+            if (currentReviews.length > 0 && data.length > currentReviews.length) {
+              const newR = data[0];
+              setToastNotification({ id: newR._id || Date.now(), message: `⭐️ New ${newR.rating || 5}-Star Review from ${newR.name || 'Customer'}` });
+            }
+            setReviews(data);
+          }
+        })
+        .catch(() => {});
+
     }, 4000);
 
     return () => clearInterval(interval);
@@ -391,6 +503,7 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
           setAdminName(nameToSet);
           localStorage.setItem('adminName', nameToSet);
           localStorage.setItem('adminAuthorized', 'true');
+          localStorage.setItem('adminAuthTime', Date.now().toString());
         } else {
           setLoginError('Unauthorized: Access restricted to Admin accounts only.');
         }
@@ -439,6 +552,43 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
     } catch (err) {
       console.error(err);
       alert('Error deleting product.');
+    }
+  };
+  // Update Product (Edit Name, Price, Photos, Description, Category)
+  const handleUpdateProduct = async (e) => {
+    if (e) e.preventDefault();
+    if (!editingProduct) return;
+
+    const imagesArray = editProdImages
+      .split('\n')
+      .map(img => img.trim())
+      .filter(img => img.length > 0);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/products/${editingProduct._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editProdName,
+          price: Number(editProdPrice),
+          compareAtPrice: Number(editProdComparePrice) || Number(editProdPrice),
+          images: imagesArray.length > 0 ? imagesArray : editingProduct.images,
+          description: editProdDesc,
+          category: editProdCategory,
+          availability: editProdAvailability
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(prev => prev.map(p => p._id === editingProduct._id ? (data._id ? data : { ...p, ...data }) : p));
+        setEditingProduct(null);
+        alert('Product updated successfully!');
+      } else {
+        alert(data.message || 'Error updating product.');
+      }
+    } catch (err) {
+      console.error('Update Product Error:', err);
+      alert('Error connecting to server.');
     }
   };
 
@@ -907,6 +1057,7 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
             onClick={() => {
               setIsAuthorized(false);
               localStorage.removeItem('adminAuthorized');
+              localStorage.removeItem('adminAuthTime');
               localStorage.removeItem('adminName');
             }}
             className="w-full flex items-center space-x-3 px-3 py-2 text-gray-400 hover:text-red-600 transition-colors text-[12px]"
@@ -1423,11 +1574,23 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <label className="text-gray-400 font-bold uppercase text-[10px]">Images URLs * (Comma separated)</label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-gray-400 font-bold uppercase text-[10px]">Images URLs * (Comma separated)</label>
+                    <label className="cursor-pointer text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 flex items-center space-x-1">
+                      <span>☁️ {uploadingImage ? 'Uploading...' : 'Upload Image to Cloudinary'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        disabled={uploadingImage}
+                        onChange={(e) => handleCloudinaryUpload(e, (url) => setNewProdImages(prev => prev ? `${prev}, ${url}` : url))}
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
                   <input 
                     type="text" 
                     required
-                    placeholder="https://images.unsplash.com/..., https://..."
+                    placeholder="https://res.cloudinary.com/..., https://..."
                     value={newProdImages}
                     onChange={(e) => setNewProdImages(e.target.value)}
                     className="px-3.5 py-2.5 bg-[#fbfbfa] border border-[#e5e5e0] rounded text-gray-800 focus:outline-none focus:border-black font-semibold"
@@ -1523,13 +1686,31 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                           </button>
                         </td>
                         <td className="p-4 text-right">
-                          <button
-                            onClick={() => handleDeleteProduct(p._id)}
-                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            title="Delete Product"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center justify-end space-x-1">
+                            <button
+                              onClick={() => {
+                                setEditingProduct(p);
+                                setEditProdName(p.name || '');
+                                setEditProdPrice(p.price || '');
+                                setEditProdComparePrice(p.compareAtPrice || '');
+                                setEditProdImages(p.images ? p.images.join('\n') : '');
+                                setEditProdDesc(p.description || '');
+                                setEditProdCategory(p.category || 'pant');
+                                setEditProdAvailability(p.availability !== false);
+                              }}
+                              className="p-2 text-gray-400 hover:text-black transition-colors"
+                              title="Edit Product Details & Photos"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(p._id)}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Delete Product"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1537,6 +1718,149 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                 </table>
               </div>
             </div>
+
+            {/* Edit Product Modal Overlay */}
+            {editingProduct && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="bg-white rounded-xl shadow-2xl border border-neutral-200 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 text-left font-sans space-y-4 relative">
+                  <button 
+                    type="button"
+                    onClick={() => setEditingProduct(null)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-black p-2"
+                  >
+                    <X size={18} />
+                  </button>
+
+                  <div className="border-b border-neutral-100 pb-3">
+                    <h3 className="text-[18px] font-bold text-neutral-900">Edit Product: {editingProduct.name}</h3>
+                    <p className="text-[12px] text-gray-400">Update product name, price, photo URLs, description, category, and inventory status.</p>
+                  </div>
+
+                  <form onSubmit={handleUpdateProduct} className="space-y-4 text-[13px]">
+                    {/* Product Name */}
+                    <div className="flex flex-col space-y-1">
+                      <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Product Name *</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={editProdName}
+                        onChange={(e) => setEditProdName(e.target.value)}
+                        className="px-3.5 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-semibold text-gray-800"
+                      />
+                    </div>
+
+                    {/* Category & Availability */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Category *</label>
+                        <select 
+                          value={editProdCategory}
+                          onChange={(e) => setEditProdCategory(e.target.value)}
+                          className="px-3 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-semibold text-gray-800 bg-white"
+                        >
+                          {(categories || []).map(cat => (
+                            <option key={cat.name} value={cat.name}>{cat.label}</option>
+                          ))}
+                          <option value="shirt">Shirts</option>
+                          <option value="pant">Pants</option>
+                          <option value="combo">Combos</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Stock Status</label>
+                        <select 
+                          value={editProdAvailability ? 'in_stock' : 'out_of_stock'}
+                          onChange={(e) => setEditProdAvailability(e.target.value === 'in_stock')}
+                          className="px-3 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-semibold text-gray-800 bg-white"
+                        >
+                          <option value="in_stock">In Stock (Active)</option>
+                          <option value="out_of_stock">Out of Stock (Disabled)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Price & Compare Price */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Selling Price (Rs.) *</label>
+                        <input 
+                          type="number" 
+                          required
+                          min="1"
+                          value={editProdPrice}
+                          onChange={(e) => setEditProdPrice(e.target.value)}
+                          className="px-3.5 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-semibold text-gray-800"
+                        />
+                      </div>
+
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Original / Compare Price (Rs.)</label>
+                        <input 
+                          type="number" 
+                          value={editProdComparePrice}
+                          onChange={(e) => setEditProdComparePrice(e.target.value)}
+                          className="px-3.5 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-semibold text-gray-800"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Product Photos / Image URLs */}
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Product Image URLs (One URL per line)</label>
+                        <label className="cursor-pointer text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 flex items-center space-x-1">
+                          <span>☁️ {uploadingImage ? 'Uploading...' : 'Upload Photo to Cloudinary'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            disabled={uploadingImage}
+                            onChange={(e) => handleCloudinaryUpload(e, (url) => setEditProdImages(prev => prev ? `${prev}\n${url}` : url))}
+                            className="hidden" 
+                          />
+                        </label>
+                      </div>
+                      <textarea 
+                        rows={3}
+                        required
+                        value={editProdImages}
+                        onChange={(e) => setEditProdImages(e.target.value)}
+                        placeholder="https://res.cloudinary.com/tyuautgtp/image/upload/..."
+                        className="px-3.5 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black font-mono text-[12px] text-gray-800 bg-neutral-50"
+                      />
+                    </div>
+
+                    {/* Product Description */}
+                    <div className="flex flex-col space-y-1">
+                      <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Description</label>
+                      <textarea 
+                        rows={3}
+                        value={editProdDesc}
+                        onChange={(e) => setEditProdDesc(e.target.value)}
+                        className="px-3.5 py-2.5 border border-neutral-300 rounded focus:outline-none focus:border-black text-[13px] text-gray-800"
+                      />
+                    </div>
+
+                    {/* Modal Buttons */}
+                    <div className="flex items-center justify-end space-x-3 pt-3 border-t border-neutral-100">
+                      <button 
+                        type="button"
+                        onClick={() => setEditingProduct(null)}
+                        className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-gray-700 text-[11px] font-bold uppercase rounded"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        className="px-6 py-2.5 bg-black hover:opacity-90 text-white text-[11px] font-bold uppercase rounded tracking-wider shadow"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
 
           </div>
         )}

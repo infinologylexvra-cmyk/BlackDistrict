@@ -118,8 +118,8 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
   const discountAmount = Math.max(0, originalSubtotal - subtotal);
   const effectiveCouponDiscount = Math.min(couponDiscount, Math.max(0, subtotal - 1));
   const remainingSubtotal = Math.max(1, subtotal - effectiveCouponDiscount);
-  const upiDiscount = remainingSubtotal > 10 ? Math.round(remainingSubtotal * 0.1) : 0;
-  const finalUpiPayable = Math.max(1, Math.round(remainingSubtotal - upiDiscount));
+  const upiDiscount = 0; // Removed extra 10% prepaid discount as requested
+  const finalUpiPayable = Math.max(1, Math.round(remainingSubtotal));
   const finalCodPayable = Math.max(1, Math.round(remainingSubtotal));
 
   // Pin Code verification API trigger
@@ -670,18 +670,35 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
               <div className="space-y-3">
                 <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Delivery Details</div>
                 
-                {/* Order Summary */}
-                <div className="border border-gray-200 p-4 rounded bg-gray-50/50 flex justify-between items-center">
-                  <div className="text-left space-y-0.5">
-                    <div className="text-[12px] font-bold text-gray-800">Order Summary</div>
-                    <div className="text-[10px] text-gray-500 font-semibold">{itemsCount} {itemsCount === 1 ? 'item' : 'items'}</div>
-                  </div>
-                  <div className="flex items-center space-x-3">
+                {/* Detailed Price Breakdown */}
+                <div className="border border-gray-200 p-4 rounded bg-gray-50/50 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <div className="text-left space-y-0.5">
+                      <div className="text-[12px] font-bold text-gray-800">Order Summary</div>
+                      <div className="text-[10px] text-gray-500 font-semibold">{itemsCount} {itemsCount === 1 ? 'item' : 'items'}</div>
+                    </div>
                     <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">
-                      {formatPrice(discountAmount)} saved so far
+                      {formatPrice(discountAmount + effectiveCouponDiscount)} Total Saved
                     </span>
-                    <span className="line-through text-gray-400 text-[12px] font-light">{formatPrice(originalSubtotal)}</span>
-                    <span className="text-[14px] font-bold text-gray-800">{formatPrice(subtotal)}</span>
+                  </div>
+
+                  <div className="border-t border-gray-200/80 pt-2 space-y-1.5 text-[11px] font-semibold text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Subtotal</span>
+                      <span>{formatPrice(subtotal)}</span>
+                    </div>
+
+                    {effectiveCouponDiscount > 0 && (
+                      <div className="flex justify-between text-green-600 font-bold">
+                        <span>Coupon Discount ({appliedCoupon})</span>
+                        <span>- {formatPrice(effectiveCouponDiscount)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center text-[13px] font-bold text-gray-900 border-t border-gray-200 pt-1.5">
+                      <span>Final Amount Payable</span>
+                      <span className="text-[15px] text-black font-extrabold">{formatPrice(finalUpiPayable)}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -787,14 +804,14 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
               <button 
                 onClick={handlePayment}
                 disabled={loading}
-                className="w-full py-4 bg-black text-white text-[13px] font-bold uppercase tracking-widest hover:opacity-95 transition-opacity rounded flex items-center justify-center space-x-2"
+                className="w-full py-4 bg-black text-white text-[13px] font-bold uppercase tracking-widest hover:opacity-95 transition-opacity rounded flex items-center justify-center space-x-2 shadow-md"
               >
                 {loading ? (
-                  <span>Processing...</span>
+                  <span>Processing Payment...</span>
                 ) : (
                   <>
                     <Smartphone size={16} />
-                    <span>{t.payNow}</span>
+                    <span>PAY {formatPrice(finalUpiPayable)} VIA RAZORPAY</span>
                   </>
                 )}
               </button>

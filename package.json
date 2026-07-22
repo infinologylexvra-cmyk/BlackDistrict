@@ -5,5 +5,10 @@
   "scripts": {
     "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
     "start": "cd backend && node server.js"
+  },
+  "dependencies": {
+    "cloudinary": "^1.41.3",
+    "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^4.0.0"
   }
 }

@@ -119,6 +119,35 @@ const products = [
     onSale: true,
     availability: true,
     category: 'shirt'
+  },
+  // COMBOS
+  {
+    name: 'BlackDistrict™ Signature Linen Combo Set',
+    price: 2799,
+    compareAtPrice: 3999,
+    images: [
+      '/image/collection-signature.webp',
+      '/image/beige-pant-1.jpg'
+    ],
+    description: 'Our signature Cuban collar flax shirt paired with tailored classic linen pants. A complete ready-to-wear ensemble built for effortless luxury.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
+  },
+  {
+    name: 'BlackDistrict™ Old Money Riviera Combo Set',
+    price: 2999,
+    compareAtPrice: 4299,
+    images: [
+      '/image/collection-summer-edit.jpg',
+      '/image/white-pants-1.png'
+    ],
+    description: 'Retro resort linen shirt paired with classic straight white cotton pants. Coastal elegance redefined.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
+    onSale: true,
+    availability: true,
+    category: 'combo'
   }
 ];
 

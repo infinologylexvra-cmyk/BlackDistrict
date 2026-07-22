@@ -109,19 +109,18 @@ const Header = ({
       .finally(() => setOtpLoading(false));
   };
 
-  // Dynamic Google script tag loader and client initialization
+  // Dynamic Google script tag loader and client initialization with anti-fluctuation check
   useEffect(() => {
     if (!isAuthOpen || isLoggedIn) return;
 
     const initializeGoogleSignIn = () => {
       if (window.google && window.google.accounts) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleLoginResponse
-        });
-
         const btnContainer = document.getElementById("google-button-container");
-        if (btnContainer) {
+        if (btnContainer && !btnContainer.hasChildNodes()) {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleLoginResponse
+          });
           window.google.accounts.id.renderButton(btnContainer, {
             theme: "outline",
             size: "large",
@@ -140,7 +139,8 @@ const Header = ({
       script.onload = initializeGoogleSignIn;
       document.body.appendChild(script);
     } else {
-      setTimeout(initializeGoogleSignIn, 150); // slight delay to ensure container is mounted
+      const timer = setTimeout(initializeGoogleSignIn, 100);
+      return () => clearTimeout(timer);
     }
   }, [isAuthOpen, isLoggedIn, activeAuthTab]);
 
