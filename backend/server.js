@@ -31,16 +31,25 @@ app.use('/api/settings', settingRoutes);
 app.use('/api/categories', categoryRoutes);
 
 const path = require('path');
+const fs = require('fs');
 
-// Serve static assets in production
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+const frontendDist = path.join(__dirname, '../frontend/dist');
+const indexHtml = path.join(frontendDist, 'index.html');
+
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+}
 
 // Wildcard fallback to serve index.html for React SPA client-side routes (like /admin)
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ message: 'API route not found' });
   }
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  if (fs.existsSync(indexHtml)) {
+    res.sendFile(indexHtml);
+  } else {
+    res.send('<div style="font-family:sans-serif;text-align:center;padding:50px;"><h2>BlackDistrict API Server</h2><p>Backend API is Live. Building frontend assets...</p></div>');
+  }
 });
 
 const PORT = process.env.PORT || 5000;
