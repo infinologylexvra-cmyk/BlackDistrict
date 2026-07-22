@@ -14,7 +14,7 @@ const createOrder = async (req, res) => {
 
   try {
     const options = {
-      amount: Math.round(amount * 100), // Amount in paise
+      amount: Math.round(amount * 100),
       currency: 'INR',
       receipt: `receipt_order_${Date.now()}`
     };
@@ -22,16 +22,9 @@ const createOrder = async (req, res) => {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    // If key is mock or missing, we bypass actual Razorpay API
-    if (!keyId || keyId === 'rzp_test_FineLegendsKeys123' || keyId === 'PLACEHOLDER') {
-      console.log('Using simulated Razorpay order creation (mock keys)');
-      return res.json({
-        id: `order_mock_${Date.now()}`,
-        amount: options.amount,
-        currency: options.currency,
-        key_id: 'rzp_test_TErlyYApKITv7m',
-        mock: true
-      });
+    if (!keyId || !keySecret) {
+      console.error('Razorpay keys are missing from .env');
+      return res.status(500).json({ message: 'Payment gateway not configured. Please contact support.' });
     }
 
     console.log('Initializing Razorpay client for order creation with key:', keyId);
@@ -47,20 +40,7 @@ const createOrder = async (req, res) => {
     });
   } catch (err) {
     console.error('Razorpay Order Creation Error:', err.message);
-    
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    let fallbackKey = keyId || 'rzp_test_TErlyYApKITv7m';
-    if (fallbackKey.startsWith('rzp_live_')) {
-      fallbackKey = fallbackKey.replace('rzp_live_', 'rzp_test_');
-    }
-
-    res.json({
-      id: `order_mock_${Date.now()}`,
-      amount: Math.round(amount * 100),
-      currency: 'INR',
-      key_id: fallbackKey,
-      mock: true
-    });
+    res.status(500).json({ message: 'Failed to create payment order. Please try again.' });
   }
 };
 

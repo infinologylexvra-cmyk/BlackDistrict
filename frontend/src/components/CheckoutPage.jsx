@@ -255,17 +255,13 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
         setLoading(false);
         return;
       }      // 3. Define Razorpay Options
-      // 3. Define Razorpay Options
-      let finalKey = orderData.key_id;
-      if (finalKey.includes('BlackDistrictKeys') || finalKey.includes('PLACEHOLDER')) {
-        finalKey = 'rzp_test_TErlyYApKITv7m';
-      }
+      const finalKey = orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
 
       const options = {
         key: finalKey,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'blackdistricts',
+        name: 'BlackDistrict',
         description: 'Timeless Premium Linen Apparel Checkout',
         image: '/image/new-logo.png',
         handler: async (response) => {
@@ -313,7 +309,7 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
         prefill: {
           name: shippingDetails.name,
           email: shippingDetails.email,
-          contact: shippingDetails.phone
+          contact: '+919317902609'
         },
         notes: {
           address: shippingDetails.address

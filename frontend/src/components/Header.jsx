@@ -390,6 +390,14 @@ const Header = ({
                   >
                     ALL COLLECTIONS
                   </a>
+
+                  <a 
+                    href="/pages/contact" 
+                    onClick={(e) => handleNavClick('contact', e)} 
+                    className={currentPage === 'contact' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
+                  >
+                    CONTACT US
+                  </a>
                 </nav>
 
                 {/* Right Side Search & Account Icons */}
@@ -503,7 +511,8 @@ const Header = ({
               {[
                 { label: 'Home', page: 'home' },
                 ...(categories || []).map(cat => ({ label: cat.label, page: cat.name })),
-                { label: 'Collections', page: 'all' }
+                { label: 'Collections', page: 'all' },
+                { label: 'Contact Us', page: 'contact' }
               ].map(item => (
                 <button
                   key={item.page}

@@ -125,17 +125,17 @@ function App() {
     
     if (path.startsWith('/collections/')) {
       const catName = path.replace('/collections/', '');
-      const validCategories = ['pant', 'pantts', 'pants', 'shirt', 'shirts', 'combo', 'combos', 'footwear', 'watches'];
-      if (validCategories.includes(catName)) {
-        if (catName === 'pantts' || catName === 'pants') {
-          setCurrentPage('pant');
-        } else if (catName === 'shirts') {
-          setCurrentPage('shirt');
-        } else {
-          setCurrentPage(catName);
-        }
+      // Normalize plural/variant category names
+      if (catName === 'pantts' || catName === 'pants') {
+        setCurrentPage('pant');
+      } else if (catName === 'shirts') {
+        setCurrentPage('shirt');
+      } else if (catName === 'combos') {
+        setCurrentPage('combo');
+      } else if (catName === 'all') {
+        setCurrentPage('collections');
       } else {
-        setCurrentPage('404');
+        setCurrentPage(catName);
       }
     } else if (path === '/collections') {
       setCurrentPage('collections');
@@ -143,16 +143,22 @@ function App() {
       setCurrentPage('contact');
     } else if (path === '/admin') {
       setCurrentPage('admin');
+    } else if (path === '/checkout') {
+      setCurrentPage('checkout');
     } else if (path.startsWith('/products/')) {
-      // Allow detail pages
       setCurrentPage('home');
     } else if (path === '/') {
       setCurrentPage('home');
     } else {
-      setCurrentPage('404');
+      // Fallback to home instead of 404 for unknown paths
+      setCurrentPage('home');
     }
   }, []);
 
+  // Scroll to top whenever the page changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
   // Cart operations
   const handleAddToCart = (product, size, quantity) => {
     setCartItems((prevItems) => {
