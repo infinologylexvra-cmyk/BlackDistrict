@@ -126,7 +126,7 @@ const Header = ({
             window.google.accounts.id.renderButton(btnContainer, {
               theme: "outline",
               size: "large",
-              width: 320
+              width: btnContainer.clientWidth > 100 ? btnContainer.clientWidth : (window.innerWidth < 400 ? window.innerWidth - 60 : 320)
             });
           } catch (e) {}
         }
@@ -351,6 +351,17 @@ const Header = ({
                   <User size={18} strokeWidth={1} />
                 </button>
                 <button 
+                  onClick={() => setIsWishlistOpen(true)}
+                  className="text-neutral-900 hover:opacity-70 transition-opacity relative"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={wishlist.length > 0 ? "#ef4444" : "none"} className={wishlist.length > 0 ? "text-red-500" : ""} stroke={wishlist.length > 0 ? "#ef4444" : "currentColor"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  {wishlist.length > 0 && (
+                    <span className="absolute -bottom-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-extrabold">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </button>
+                <button 
                   onClick={() => setIsCartOpen(true)}
                   className="text-neutral-900 hover:opacity-70 transition-opacity relative"
                 >
@@ -460,6 +471,15 @@ const Header = ({
                           <div className="text-[11px] text-gray-400 truncate">{loggedInUser?.email || loggedInUser?.phone || 'BlackDistrict Member'}</div>
                         </div>
                         <div className="space-y-1 text-[12px] font-medium text-gray-700">
+                          <button 
+                            onClick={() => {
+                              setShowProfileDropdown(false);
+                              handleNavClick('my-orders');
+                            }}
+                            className="w-full text-left py-1.5 px-2 hover:bg-neutral-50 rounded flex items-center space-x-2"
+                          >
+                            <span>📦 My Orders</span>
+                          </button>
                           <button 
                             onClick={() => {
                               setShowProfileDropdown(false);
@@ -657,7 +677,7 @@ const Header = ({
         <div className="fixed inset-0 bg-black/75 flex justify-center items-center p-4 z-50 animate-fade-in font-sans">
           
           {/* Modal Container */}
-          <div className="bg-white max-w-4xl w-full relative flex flex-col md:flex-row shadow-2xl rounded-2xl overflow-hidden min-h-[500px] text-left border border-neutral-100">
+          <div className="bg-white max-w-4xl w-full relative flex flex-col md:flex-row shadow-2xl rounded-2xl overflow-y-auto max-h-[95vh] md:max-h-[90vh] min-h-[auto] md:min-h-[500px] text-left border border-neutral-100">
             
             {/* Close Icon */}
             <button 
@@ -698,7 +718,7 @@ const Header = ({
               </div>
             ) : (
               <>                {/* Left Section: Brand Panel */}
-                <div className="w-full md:w-[45%] bg-black p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden min-h-[400px] md:min-h-auto border-r border-neutral-800">
+                <div className="hidden md:flex md:w-[45%] bg-black p-8 md:p-10 flex-col justify-between text-white relative overflow-hidden border-r border-neutral-800">
                   
                   {/* Subtle Giftbox background cover */}
                   <div className="absolute inset-0 bg-cover bg-center opacity-[0.15] pointer-events-none mix-blend-luminosity" style={{ backgroundImage: "url('/image/newsletter-box.jpg')" }} />
@@ -767,7 +787,7 @@ const Header = ({
                 </div>
 
                 {/* Right Section: Form content */}
-                <div className="w-full md:w-[55%] p-8 md:p-10 flex flex-col justify-between bg-white text-gray-900">
+                <div className="w-full md:w-[55%] p-6 md:p-10 flex flex-col justify-between bg-white text-gray-900">
                   
                   <div>
                     {/* Selector Tabs */}

@@ -4,17 +4,33 @@ const Footer = () => {
   const sections = [
     {
       title: 'SHOP',
-      links: ['New In', 'Clothing', 'Collections', 'Sale']
+      links: [
+        { label: 'Collections', path: 'collections' }
+      ]
     },
     {
       title: 'CUSTOMER SERVICE',
-      links: ['Help & Support', 'Track Order', 'Returns & Exchanges', 'Shipping Policy', 'Size Guide', 'FAQs']
+      links: [
+        { label: 'Help & Support', path: 'help' },
+        { label: 'Track Order', path: 'track-order' },
+        { label: 'Returns & Exchanges', path: 'returns' },
+        { label: 'Shipping Policy', path: 'shipping' },
+        { label: 'FAQs', path: 'faq' }
+      ]
     },
     {
       title: 'COMPANY',
-      links: ['About Us', 'Our Stores', 'Careers', 'Press', 'Sustainability', 'Contact Us']
+      links: [
+        { label: 'Contact Us', path: 'contact' }
+      ]
     }
   ];
+
+  const handleLinkClick = (e, path) => {
+    e.preventDefault();
+    const event = new CustomEvent('navigate', { detail: path });
+    window.dispatchEvent(event);
+  };
 
   return (
     <footer className="bg-black text-[#8c8574] pt-16 pb-10 border-t border-neutral-900 font-sans">
@@ -53,8 +69,8 @@ const Footer = () => {
               <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{section.title}</h3>
               <ul className="space-y-2.5 text-[12.5px] text-gray-500 font-medium">
                 {section.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="hover:text-white transition-colors">{link}</a>
+                  <li key={link.label}>
+                    <a href={`/${link.path}`} onClick={(e) => handleLinkClick(e, link.path)} className="hover:text-white transition-colors">{link.label}</a>
                   </li>
                 ))}
               </ul>
@@ -64,11 +80,12 @@ const Footer = () => {
           {/* We Accept */}
           <div className="col-span-2 md:col-span-1 space-y-5">
             <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-400">WE ACCEPT</h3>
-            <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-extrabold uppercase tracking-widest text-gray-400">
-              <div className="border border-neutral-800 bg-neutral-950 px-2 py-2.5 rounded">VISA</div>
-              <div className="border border-neutral-800 bg-neutral-950 px-2 py-2.5 rounded font-serif italic text-blue-400">Pay</div>
-              <div className="border border-neutral-800 bg-neutral-950 px-2 py-2.5 rounded text-green-400">UPI</div>
-              <div className="border border-neutral-800 bg-neutral-950 px-2 py-2.5 rounded text-blue-500">Paytm</div>
+            <div className="bg-white px-4 py-3 rounded inline-flex items-center justify-center border border-neutral-700">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" 
+                alt="Razorpay Secured" 
+                className="h-5 sm:h-6 object-contain"
+              />
             </div>
           </div>
 

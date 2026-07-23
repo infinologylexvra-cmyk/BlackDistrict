@@ -255,10 +255,49 @@ const verifyUpi = async (req, res) => {
   });
 };
 
+// @desc    Track Order by Order ID
+// @route   GET /api/payment/track/:orderId
+// @access  Public
+const trackOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    // Find the order in the database
+    const order = await Order.findOne({ orderId });
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+    
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('Track Order Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while tracking order.' });
+  }
+};
+
+// @desc    Get user specific orders by email
+// @route   GET /api/payment/my-orders/:email
+// @access  Public (for now)
+const getMyOrders = async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    const orders = await Order.find({ 'shippingAddress.email': email }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    console.error('Fetch My Orders Error:', err.message);
+    res.status(500).json({ message: 'Server error fetching your orders' });
+  }
+};
 
 module.exports = {
   createOrder,
   verifyPayment,
   getOrders,
-  verifyUpi
+  verifyUpi,
+  trackOrder,
+  getMyOrders
 };

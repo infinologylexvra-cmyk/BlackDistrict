@@ -7,6 +7,8 @@ const SearchResultsPage = ({ searchQuery, onProductSelect, onBack }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isActive = true;
+
     if (!searchQuery) {
       setResults([]);
       setLoading(false);
@@ -17,6 +19,7 @@ const SearchResultsPage = ({ searchQuery, onProductSelect, onBack }) => {
     fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
+        if (!isActive) return;
         if (data && data.length > 0) {
           const lowerQuery = searchQuery.toLowerCase();
           const filtered = data.filter(p => 
@@ -25,13 +28,20 @@ const SearchResultsPage = ({ searchQuery, onProductSelect, onBack }) => {
             (p.category && p.category.toLowerCase().includes(lowerQuery))
           );
           setResults(filtered);
+        } else {
+          setResults([]);
         }
         setLoading(false);
       })
       .catch(err => {
+        if (!isActive) return;
         console.warn('Search query failed:', err.message);
         setLoading(false);
       });
+
+    return () => {
+      isActive = false;
+    };
   }, [searchQuery]);
 
   const formatPrice = (value) => {
@@ -62,7 +72,7 @@ const SearchResultsPage = ({ searchQuery, onProductSelect, onBack }) => {
           Search Results
         </h1>
         <p className="text-[14px] font-sans text-[#6b6b66] mb-8">
-          Showing results for "{searchQuery}" &bull; {results.length} {results.length === 1 ? 'item' : 'items'} found
+          Showing results for "{searchQuery}" {!loading && <>&bull; {results.length} {results.length === 1 ? 'item' : 'items'} found</>}
         </p>
 
         {loading ? (

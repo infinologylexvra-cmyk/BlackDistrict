@@ -21,6 +21,11 @@ import LimitedDropBar from './components/LimitedDropBar';
 import Newsletter from './components/Newsletter';
 import ProductGrid from './components/ProductGrid';
 import NotFoundPage from './components/NotFoundPage';
+import HelpSupportPage from './components/HelpSupportPage';
+import TrackOrderPage from './components/TrackOrderPage';
+import ReturnsExchangesPage from './components/ReturnsExchangesPage';
+import FaqPage from './components/FaqPage';
+import MyOrdersPage from './components/MyOrdersPage';
 import { API_BASE_URL } from './apiConfig';
 
 function App() {
@@ -125,8 +130,10 @@ function App() {
   useEffect(() => {
     const syncRoute = () => {
       const rawPath = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/';
-      
-      if (rawPath === '/shirt' || rawPath === '/shirts' || rawPath === '/collections/shirt' || rawPath === '/collections/shirts') {
+
+      if (rawPath === '/' || rawPath === '' || rawPath === '/index.html') {
+        setCurrentPage('home');
+      } else if (rawPath === '/shirt' || rawPath === '/shirts' || rawPath === '/collections/shirt' || rawPath === '/collections/shirts') {
         setCurrentPage('shirt');
       } else if (rawPath === '/pant' || rawPath === '/pants' || rawPath === '/pantts' || rawPath === '/collections/pant' || rawPath === '/collections/pants' || rawPath === '/collections/pantts') {
         setCurrentPage('pant');
@@ -138,6 +145,18 @@ function App() {
         setCurrentPage('catalogue');
       } else if (rawPath === '/pages/contact' || rawPath === '/contact') {
         setCurrentPage('contact');
+      } else if (rawPath === '/help') {
+        setCurrentPage('help');
+      } else if (rawPath === '/track-order') {
+        setCurrentPage('track-order');
+      } else if (rawPath === '/returns') {
+        setCurrentPage('returns');
+      } else if (rawPath === '/shipping') {
+        setCurrentPage('shipping');
+      } else if (rawPath === '/faq') {
+        setCurrentPage('faq');
+      } else if (rawPath === '/my-orders') {
+        setCurrentPage('my-orders');
       } else if (rawPath === '/admin') {
         setCurrentPage('admin');
       } else if (rawPath === '/checkout') {
@@ -166,7 +185,18 @@ function App() {
 
     syncRoute();
     window.addEventListener('popstate', syncRoute);
-    return () => window.removeEventListener('popstate', syncRoute);
+
+    const handleCustomNavigate = (e) => {
+      const path = e.detail;
+      setCurrentPage(path);
+      window.history.pushState({}, '', `/${path}`);
+    };
+    window.addEventListener('navigate', handleCustomNavigate);
+
+    return () => {
+      window.removeEventListener('popstate', syncRoute);
+      window.removeEventListener('navigate', handleCustomNavigate);
+    };
   }, []);
 
   // Scroll to top whenever the page changes
@@ -377,6 +407,24 @@ function App() {
         )}
         {currentPage === 'contact' && (
           <ContactPage />
+        )}
+        {currentPage === 'help' && (
+          <HelpSupportPage />
+        )}
+        {currentPage === 'track-order' && (
+          <TrackOrderPage />
+        )}
+        {currentPage === 'returns' && (
+          <ReturnsExchangesPage />
+        )}
+        {currentPage === 'shipping' && (
+          <ShippingPolicyPage />
+        )}
+        {currentPage === 'faq' && (
+          <FaqPage />
+        )}
+        {currentPage === 'my-orders' && (
+          <MyOrdersPage />
         )}
         {currentPage === 'admin' && (
           <AdminPanel 
