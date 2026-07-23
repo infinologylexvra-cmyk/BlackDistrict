@@ -3,79 +3,41 @@ import { ChevronDown, ShoppingBag, X, Heart } from 'lucide-react';
 import { API_BASE_URL } from '../apiConfig';
 
 const FALLBACK_PRODUCTS = [
-  // Pants
   {
     _id: 'p1',
-    name: 'BlackDistrict™ Classic Beige Pant',
-    price: 1299,
+    name: 'Classic Beige Pant & Shirt Set',
+    price: 999,
     compareAtPrice: 1999,
-    images: ['/image/beige-pant-1.jpg', '/image/beige-pant-2-hd.jpg', '/image/beige-pant-3.jpg'],
-    description: 'Designed with a casual yet tailored fit, these pants feature a drawstring waist, side seam pockets, and a faux fly, crafted from a breathable blend of viscose and cotton.',
-    sizes: ['28', '30', '32', '34', '36', '38'],
+    images: ['/image/collection-shirt.png', '/image/beige-pant-2-hd.jpg', '/image/beige-pant-3.jpg'],
+    description: 'A complete combination featuring our tailored beige trousers and a matching premium shirt. Designed for a casual yet sophisticated fit.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
-    category: 'pant'
+    category: 'combo'
   },
   {
     _id: 'p2',
-    name: 'BlackDistrict™ Classic White Pants',
-    price: 1299,
+    name: 'Classic White Pants & Linen Shirt Combo',
+    price: 999,
     compareAtPrice: 1999,
-    images: ['/image/white-pants-1.png', '/image/white-pants-2.png', '/image/white-pants-3.png'],
-    description: 'These are regular straight cotton pants featuring a concealed elastic band, drawstring, zip fly, and button closure, with a composition of 98% cotton and 2% elastane.',
-    sizes: ['28', '30', '32', '34', '36', '38'],
+    images: ['/image/collection-summer-edit.jpg', '/image/white-pants-2.png', '/image/white-pants-3.png'],
+    description: 'A premium summer-ready set consisting of regular straight cotton white pants and a breathable linen shirt.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
-    category: 'pant'
+    category: 'combo'
   },
   {
     _id: 'p3',
-    name: 'BlackDistrict™ Classic Black Pant',
-    price: 1299,
+    name: 'Classic Black Pant & Evening Shirt Combo',
+    price: 999,
     compareAtPrice: 1999,
-    images: ['/image/black-pant-1-hd.jpg', '/image/black-pant-2-hd.jpg', '/image/black-pant-3-hd.jpg', '/image/black-pant-4-hd.jpg'],
-    description: 'Similar to the beige version, these are breathable solid drawstring pants with a casual, tailored fit.',
-    sizes: ['28', '30', '32', '34', '36', '38'],
+    images: ['/image/midnight_silk_shirt.jpg', '/image/black-pant-2-hd.jpg', '/image/black-pant-3-hd.jpg', '/image/black-pant-4-hd.jpg'],
+    description: 'An ultra HD solid drawstring black pant paired with a premium evening shirt for a complete sophisticated look.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
-    category: 'pant'
-  },
-  // Shirts
-  {
-    _id: 's1',
-    name: 'Linen Premium Shirt',
-    price: 2999,
-    compareAtPrice: 3999,
-    images: ['/image/collection-signature.webp'],
-    description: '100% European Flax linen tailored to perfection. Natural breathing weave for unmatched comfort.',
-    sizes: ['M', 'L', 'XL'],
-    onSale: true,
-    availability: true,
-    category: 'shirt'
-  },
-  {
-    _id: 's2',
-    name: 'Textured Knit Polo',
-    price: 2199,
-    compareAtPrice: 2999,
-    images: ['/image/collection-shirt.png'],
-    description: 'Casual sophistication, crafted with micro-textured knit cotton yarn.',
-    sizes: ['S', 'M', 'L', 'XL'],
-    onSale: true,
-    availability: true,
-    category: 'shirt'
-  },
-  {
-    _id: 's3',
-    name: 'Linen Blend Shirt',
-    price: 2299,
-    compareAtPrice: 3199,
-    images: ['/image/collection-summer-edit.jpg'],
-    description: 'Sage green lightweight linen blend, tailored regular fit.',
-    sizes: ['M', 'L', 'XL'],
-    onSale: true,
-    availability: true,
-    category: 'shirt'
+    category: 'combo'
   }
 ];
 
@@ -112,14 +74,7 @@ const PantCollectionPage = ({
       })
       .then((data) => {
         if (data && data.length > 0) {
-          // Merge database items with local fallbacks to guarantee no empty category page (especially footwear)
-          const merged = [...data];
-          FALLBACK_PRODUCTS.forEach(fallbackItem => {
-            if (!merged.some(item => item._id === fallbackItem._id || item.name === fallbackItem.name)) {
-              merged.push(fallbackItem);
-            }
-          });
-          setProducts(merged);
+          setProducts(data);
         } else {
           setProducts(FALLBACK_PRODUCTS);
         }
@@ -134,9 +89,6 @@ const PantCollectionPage = ({
 
   // Filter logic
   const filteredProducts = products.filter((product) => {
-    // Only display matching category
-    if (product.category && product.category.toLowerCase().trim() !== category.toLowerCase().trim()) return false;
-
     // Availability Filter
     if (!filterInStock && product.availability) return false;
     if (!filterOutOfStock && !product.availability) return false;

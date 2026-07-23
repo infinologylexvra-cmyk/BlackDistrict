@@ -47,8 +47,7 @@ function App() {
   // Dynamic store logo settings
   const [storeLogo, setStoreLogo] = useState('');
   const [categories, setCategories] = useState([
-    { name: 'pant', label: 'Pants' },
-    { name: 'shirt', label: 'Shirts' }
+    { id: 'cat1', name: 'combo', label: 'CURATED COMBOS' }
   ]);
 
   const loadCategories = () => {
@@ -481,7 +480,7 @@ function App() {
         href="https://wa.me/919888695199" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex items-center group cursor-pointer animate-fade-in"
+        className={`fixed right-6 z-50 flex items-center group cursor-pointer animate-fade-in transition-all duration-300 ${currentPage === 'description' ? 'bottom-[90px] md:bottom-[100px]' : 'bottom-6 md:bottom-8'}`}
       >
         <div className="bg-[#1a1a1a] text-white text-[12px] font-sans px-4 py-2 rounded-full mr-3 shadow-lg pointer-events-none hidden sm:block">
           Chat with us

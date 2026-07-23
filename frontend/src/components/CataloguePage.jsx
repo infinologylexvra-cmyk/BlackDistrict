@@ -6,11 +6,11 @@ import { Heart, Filter, Grid, SlidersHorizontal, ArrowRight, Eye, ShoppingBag } 
 const CATALOGUE_FALLBACKS = [
   {
     _id: 'cb1',
-    name: 'BlackDistrict™ Signature Linen Combo Set',
-    price: 2799,
-    compareAtPrice: 3999,
-    images: ['/image/combo-signature.jpg', '/image/collection-signature.webp', '/image/beige-pant-1.jpg'],
-    description: 'Our signature Cuban collar flax shirt paired with tailored classic linen pants. A complete ready-to-wear ensemble built for effortless luxury.',
+    name: 'Classic Beige Pant & Shirt Set',
+    price: 999,
+    compareAtPrice: 1999,
+    images: ['/image/collection-shirt.png', '/image/collection-signature.webp', '/image/beige-pant-1.jpg'],
+    description: 'A complete combination featuring our tailored beige trousers and a matching premium shirt.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
@@ -18,11 +18,11 @@ const CATALOGUE_FALLBACKS = [
   },
   {
     _id: 'cb2',
-    name: 'BlackDistrict™ Riviera Resort Combo Set',
-    price: 2999,
-    compareAtPrice: 4299,
-    images: ['/image/combo-riviera.jpg', '/image/collection-summer-edit.jpg', '/image/white-pants-1.png'],
-    description: 'Retro resort linen shirt paired with classic straight white cotton pants. Coastal elegance redefined.',
+    name: 'Classic White Pants & Linen Shirt Combo',
+    price: 999,
+    compareAtPrice: 1999,
+    images: ['/image/collection-summer-edit.jpg', '/image/collection-summer-edit.jpg', '/image/white-pants-1.png'],
+    description: 'A premium summer-ready set consisting of regular straight cotton white pants and a breathable linen shirt.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
@@ -30,11 +30,11 @@ const CATALOGUE_FALLBACKS = [
   },
   {
     _id: 'cb3',
-    name: 'BlackDistrict™ Executive Black Linen Set',
-    price: 2899,
-    compareAtPrice: 4099,
-    images: ['/image/collection-shirt.png', '/image/black-pant-1-hd.jpg'],
-    description: 'Cuban classic shirt matched with breathable solid black tailored drawstring pants.',
+    name: 'Classic Black Pant & Evening Shirt Combo',
+    price: 999,
+    compareAtPrice: 1999,
+    images: ['/image/midnight_silk_shirt.jpg', '/image/black-pant-2-hd.jpg'],
+    description: 'An ultra HD solid drawstring black pant paired with a premium evening shirt for a complete sophisticated look.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
@@ -42,11 +42,11 @@ const CATALOGUE_FALLBACKS = [
   },
   {
     _id: 'cb4',
-    name: 'BlackDistrict™ Old Money Gurkha Combo Set',
-    price: 3199,
-    compareAtPrice: 4599,
-    images: ['/image/collection-gurkha.jpg', '/image/collection-signature.webp'],
-    description: 'Signature flax linen shirt paired with traditional military-inspired Gurkha double-buckle trousers.',
+    name: 'Riviera Resort Combo Set',
+    price: 999,
+    compareAtPrice: 4299,
+    images: ['/image/riviera_combo.jpg', '/image/collection-signature.webp'],
+    description: 'A premium men\'s combination set: a beige linen shirt and white trousers. Resort wear, bright Mediterranean vibe.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
@@ -119,7 +119,12 @@ const CataloguePage = ({ onProductSelect, onNavigate, onAddToCart, wishlist = []
     if (sortBy === 'low-high') return a.price - b.price;
     if (sortBy === 'high-low') return b.price - a.price;
     if (sortBy === 'newest') return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-    return 0; // featured
+    
+    // Default featured sorting: Combo > Shirt > Pant
+    const order = { combo: 1, shirt: 2, pant: 3 };
+    const catA = (a.category || '').toLowerCase().trim();
+    const catB = (b.category || '').toLowerCase().trim();
+    return (order[catA] || 99) - (order[catB] || 99);
   });
 
   return (
@@ -157,8 +162,6 @@ const CataloguePage = ({ onProductSelect, onNavigate, onAddToCart, wishlist = []
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {[
               { id: 'all', label: 'All Catalogue' },
-              { id: 'shirt', label: 'Shirts' },
-              { id: 'pant', label: 'Pants & Trousers' },
               { id: 'combo', label: 'Curated Combos' }
             ].map(tab => (
               <button

@@ -3,14 +3,14 @@ import React from 'react';
 const HomeCollections = ({ onNavigate }) => {
   const collections = [
     {
-      title: 'SHIRTS',
-      subtitle: 'Elevated Tops',
+      title: 'SHIRT COMBOS',
+      subtitle: 'Elevated Tops Paired with Bottoms',
       image: '/image/collection-shirt.png',
       page: 'shirt'
     },
     {
-      title: 'PANTS',
-      subtitle: 'Premium Bottoms',
+      title: 'PANT COMBOS',
+      subtitle: 'Premium Bottoms Paired with Tops',
       image: '/image/collection-gurkha.jpg',
       page: 'pant'
     }

@@ -3,15 +3,39 @@ import React from 'react';
 const COLLECTIONS_DATA = [
   {
     id: 'col1',
-    name: 'Shirts',
-    image: '/image/collection-shirt.png',
-    path: 'shirt'
+    name: 'The Signature Collection',
+    image: '/image/combo-signature.jpg',
+    path: 'catalogue'
   },
   {
     id: 'col2',
-    name: 'Pants',
-    image: '/image/collection-pant.jpg',
-    path: 'pant'
+    name: 'The Shirt',
+    image: '/image/collection-shirt.png',
+    path: 'catalogue'
+  },
+  {
+    id: 'col3',
+    name: 'FineLegends™ Signature Luxe Collection',
+    image: '/image/emerald_combo.jpg',
+    path: 'catalogue'
+  },
+  {
+    id: 'col4',
+    name: 'Cuban Classic Combo',
+    image: '/image/striped-cuban-shirt.jpg',
+    path: 'catalogue'
+  },
+  {
+    id: 'col5',
+    name: 'Resort Wear Combo',
+    image: '/image/riviera_combo.jpg',
+    path: 'catalogue'
+  },
+  {
+    id: 'col6',
+    name: 'Old Money Winterwear',
+    image: '/image/collection-winterwear.jpg',
+    path: 'catalogue'
   }
 ];
 
@@ -24,51 +48,40 @@ const AllCollectionsPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="bg-[#f5f5f0] min-h-screen text-[#1a1a1a] font-body pb-20">
-      
-      {/* Centered Collections Header */}
-      <div className="py-8 bg-[#f5f5f0] text-center border-b border-[#e5e5e0]">
-        <h1 className="text-[32px] sm:text-[40px] font-heading font-medium tracking-wide">
+    <div className="bg-[#fcfbf7] min-h-screen text-[#1a1a1a] font-sans py-12 px-6 sm:px-12 lg:px-20">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Page Title matching screenshot */}
+        <h1 className="text-[36px] sm:text-[44px] font-heading font-serif text-[#11233b] mb-10 tracking-tight">
           Collections
         </h1>
-      </div>
 
-      {/* Collections Grid (Constrained max-width to match layout exactly) */}
-      <div className="max-w-[1100px] mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-12">
+        {/* 3-Column Grid matching screenshot */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
           {COLLECTIONS_DATA.map((col) => (
-            <div key={col.id} className="group flex flex-col text-left">
-              
-              {/* Collection Image */}
-              <a 
-                href={`/collections/${col.path}`}
-                onClick={(e) => handleCollectionClick(col.path, e)}
-                className="relative w-full aspect-[3/4] overflow-hidden mb-4 bg-[#ebd9aa]/10 border border-[#e5e5e0] block"
-              >
+            <div 
+              key={col.id}
+              onClick={(e) => handleCollectionClick(col.path, e)}
+              className="group cursor-pointer flex flex-col space-y-4"
+            >
+              {/* Card Image Container */}
+              <div className="w-full aspect-[3/4] overflow-hidden bg-neutral-100 relative">
                 <img
                   src={col.image}
                   alt={col.name}
-                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-in-out group-hover:scale-105"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
-              </a>
+              </div>
 
-              {/* Title & Arrow */}
-              <h3 className="text-[16px] text-[#1a1a1a] font-body mb-1">
-                <a
-                  href={`/collections/${col.path}`}
-                  onClick={(e) => handleCollectionClick(col.path, e)}
-                  className="inline-flex items-center hover:underline decoration-1 underline-offset-4"
-                >
-                  <span className="font-medium mr-1.5">{col.name}</span>
-                  <span className="text-[16px] font-sans font-normal">&rarr;</span>
-                </a>
-              </h3>
-
+              {/* Title & Arrow Below Image matching screenshot */}
+              <div className="text-left">
+                <h3 className="text-[16px] sm:text-[18px] font-serif text-[#2a2a2a] group-hover:text-black transition-colors inline-flex items-center gap-1.5 font-medium">
+                  {col.name} <span className="text-[16px] transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </h3>
+              </div>
             </div>
           ))}
         </div>
       </div>
-
     </div>
   );
 };

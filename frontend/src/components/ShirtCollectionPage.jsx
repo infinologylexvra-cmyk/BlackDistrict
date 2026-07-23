@@ -4,48 +4,27 @@ import { API_BASE_URL } from '../apiConfig';
 const SHIRTS_FALLBACK = [
   {
     _id: 's1',
-    name: 'BlackDistrict™ Cuban Classic Shirt',
-    price: 1699,
-    compareAtPrice: 2499,
-    images: [
-      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500',
-      'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500'
-    ],
-    description: 'A breathable summer classic designed for hot climates, featuring our signature Cuban collar and premium lightweight cotton blend.',
-    sizes: ['S', 'M', 'L', 'XL'],
+    name: 'Midnight Silk Evening Shirt & Pant Set',
+    price: 999,
+    compareAtPrice: 3499,
+    images: ['/image/midnight_silk_shirt.jpg'],
+    description: 'A luxurious deep midnight navy silk button-down shirt paired with tailored dark trousers. Elegant, sophisticated evening wear.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
-    category: 'shirt'
+    category: 'combo'
   },
   {
     _id: 's2',
-    name: 'BlackDistrict™ Linen Signature Shirt',
-    price: 1999,
-    compareAtPrice: 2999,
-    images: [
-      'https://images.unsplash.com/photo-1603252109303-2751441dd157?w=500',
-      'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=500'
-    ],
-    description: 'Crafted from premium flax linen, this shirt features a relaxed silhouette and offers unparalleled breathability and clean, structured drape.',
-    sizes: ['S', 'M', 'L', 'XL'],
+    name: 'Blue Linen Summer Shirt & Trouser Combo',
+    price: 999,
+    compareAtPrice: 3499,
+    images: ['/image/blue-linen-shirt.jpg'],
+    description: 'Lightweight blue linen shirt paired with comfortable matching trousers, perfect for summer outings and beach vacations.',
+    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
     availability: true,
-    category: 'shirt'
-  },
-  {
-    _id: 's3',
-    name: 'BlackDistrict™ Retro Resort Shirt',
-    price: 1299,
-    compareAtPrice: 1999,
-    images: [
-      'https://images.unsplash.com/photo-1598032895397-b9472444bf93?w=500',
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'
-    ],
-    description: 'Evoke Mediterranean elegance with our retro-inspired resort shirt. The perfect layering piece for coastal getaways.',
-    sizes: ['S', 'M', 'L', 'XL'],
-    onSale: true,
-    availability: true,
-    category: 'shirt'
+    category: 'combo'
   }
 ];
 
@@ -53,7 +32,7 @@ const ShirtCollectionPage = ({ onProductSelect }) => {
   const [products, setProducts] = useState(SHIRTS_FALLBACK);
   const [loading, setLoading] = useState(true);
 
-  // Fetch shirts dynamically from DB
+  // Fetch shirts dynamically from DB (which are now combos)
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())

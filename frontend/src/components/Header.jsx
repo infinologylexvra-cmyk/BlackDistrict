@@ -403,19 +403,11 @@ const Header = ({
                   </a>
 
                   <a 
-                    href="/collections/shirt" 
-                    onClick={(e) => handleNavClick('shirt', e)} 
-                    className={currentPage === 'shirt' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
+                    href="/collections/combo" 
+                    onClick={(e) => handleNavClick('combo', e)} 
+                    className={currentPage === 'combo' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
                   >
-                    SHIRTS
-                  </a>
-
-                  <a 
-                    href="/collections/pant" 
-                    onClick={(e) => handleNavClick('pant', e)} 
-                    className={currentPage === 'pant' ? 'text-[#c5a880] border-b border-[#c5a880] pb-1' : 'text-neutral-600 hover:text-black pb-1 transition-all'}
-                  >
-                    PANTS
+                    CURATED COMBOS
                   </a>
 
                   <a 

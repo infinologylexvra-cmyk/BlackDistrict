@@ -6,63 +6,75 @@ import { Heart } from 'lucide-react';
 const FALLBACK_ARRIVALS = [
   {
     _id: 'arr1',
-    name: 'Linen Premium Shirt',
-    color: 'Olive Green',
-    price: 2299,
-    compareAtPrice: 3299,
+    name: 'Classic Beige Pant & Shirt Set',
+    price: 999,
+    compareAtPrice: 1999,
     images: ['/image/collection-shirt.png'],
-    category: 'shirt',
-    swatches: [
-      { color: '#8F9779', name: 'Olive Green' },
-      { color: '#5C4033', name: 'Dark Coffee' },
-      { color: '#E5D3B3', name: 'Sand Beige' },
-      { color: '#DCDCDC', name: 'Stone Grey' }
-    ]
+    category: 'combo',
+    description: 'A complete combination featuring our tailored beige trousers and a matching premium shirt. Designed for a casual yet sophisticated fit.'
   },
   {
     _id: 'arr2',
-    name: 'Classic Linen Shirt',
-    color: 'Sky Blue',
-    price: 2199,
-    compareAtPrice: 2999,
+    name: 'Classic White Pants & Linen Shirt Combo',
+    price: 999,
+    compareAtPrice: 1999,
     images: ['/image/collection-summer-edit.jpg'],
-    category: 'shirt'
+    category: 'combo',
+    description: 'A premium summer-ready set consisting of regular straight cotton white pants and a breathable linen shirt.'
   },
   {
     _id: 'arr3',
-    name: 'Linen Blend Shirt',
-    color: 'Burgundy',
-    price: 2399,
+    name: 'Midnight Silk Evening Shirt & Pant Set',
+    price: 999,
     compareAtPrice: 3499,
-    images: ['/image/collection-signature.webp'],
-    category: 'shirt'
+    images: ['/image/midnight_silk_shirt.jpg'],
+    category: 'combo',
+    description: 'A luxurious deep midnight navy silk button-down shirt paired with tailored dark trousers. Elegant, sophisticated evening wear.'
   },
   {
     _id: 'arr4',
-    name: 'Textured Shirt',
-    color: 'Navy',
-    price: 2199,
-    compareAtPrice: 3199,
-    images: ['/image/collection-signature.webp'],
-    category: 'shirt'
+    name: 'Riviera Resort Combo Set',
+    price: 999,
+    compareAtPrice: 4299,
+    images: ['/image/riviera_combo.jpg'],
+    category: 'combo',
+    description: 'A premium men\'s combination set: a beige linen shirt and white trousers. Resort wear, bright Mediterranean vibe.'
   },
   {
     _id: 'arr5',
-    name: 'Casual Shirt',
-    color: 'Dark Brown',
-    price: 1999,
-    compareAtPrice: 2799,
-    images: ['/image/collection-shirt.png'],
-    category: 'shirt'
+    name: 'Emerald Linen Signature Set',
+    price: 999,
+    compareAtPrice: 4599,
+    images: ['/image/emerald_combo.jpg'],
+    category: 'combo',
+    description: 'An emerald green linen shirt and beige tailored trousers combo. Studio lighting, luxury brand aesthetic.'
   },
   {
     _id: 'arr6',
-    name: 'Polo Shirt',
-    color: 'Cream',
-    price: 1499,
-    compareAtPrice: 2199,
-    images: ['/image/collection-summer-edit.jpg'],
-    category: 'shirt'
+    name: 'Blue Linen Summer Shirt & Trouser Combo',
+    price: 999,
+    compareAtPrice: 3499,
+    images: ['/image/blue-linen-shirt.jpg'],
+    category: 'combo',
+    description: 'Lightweight blue linen shirt paired with comfortable matching trousers, perfect for summer outings and beach vacations.'
+  },
+  {
+    _id: 'arr7',
+    name: 'Classic Black Pant & Evening Shirt Combo',
+    price: 999,
+    compareAtPrice: 1999,
+    images: ['/image/collection-signature.webp'],
+    category: 'combo',
+    description: 'An ultra HD solid drawstring black pant paired with a premium evening shirt for a complete sophisticated look.'
+  },
+  {
+    _id: 'arr8',
+    name: 'Stone Grey Chino Pants & Shirt Combo',
+    price: 999,
+    compareAtPrice: 2499,
+    images: ['/image/olive-safari-shirt.jpg'],
+    category: 'combo',
+    description: 'Premium slim-fit stone grey chino trousers combined with a breathable cotton shirt. Crafted for modern elegance and comfort.'
   }
 ];
 
@@ -85,7 +97,15 @@ const ProductGrid = ({ onProductSelect, onNavigate, wishlist = [], onToggleWishl
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
-          const arrivalsItems = data.filter(p => p.category !== 'combo').slice(0, 6);
+          // Sort items: Combo > Shirt > Pant
+          const order = { combo: 1, shirt: 2, pant: 3 };
+          const sortedItems = [...data].sort((a, b) => {
+            const catA = (a.category || '').toLowerCase().trim();
+            const catB = (b.category || '').toLowerCase().trim();
+            return (order[catA] || 99) - (order[catB] || 99);
+          });
+          
+          const arrivalsItems = sortedItems.slice(0, 8);
           if (arrivalsItems.length > 0) {
             setArrivals(arrivalsItems);
           }
