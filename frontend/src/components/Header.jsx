@@ -872,7 +872,7 @@ const Header = ({
                               onClick={() => { setActiveAuthTab('forgot'); setAuthError(''); }}
                               className="text-[11px] text-[#c5a880] hover:underline font-bold"
                             >
-                              Forgot Password?
+                              Reset Password?
                             </button>
                           </div>
 
@@ -971,7 +971,29 @@ const Header = ({
                           <p className="text-[12px] text-gray-500">Enter your email and we'll send you a link to reset your password.</p>
                         </div>
 
-                        <form onSubmit={(e) => { e.preventDefault(); alert("Password reset link sent to your email!"); setActiveAuthTab('login'); }} className="space-y-4 text-left font-sans">
+                        <form onSubmit={async (e) => { 
+                          e.preventDefault(); 
+                          const newPass = e.target.newPassword.value;
+                          const confPass = e.target.confirmPassword.value;
+                          if (newPass !== confPass) {
+                            alert("Passwords do not match!");
+                            return;
+                          }
+                          setOtpLoading(true);
+                          // Simulate API call
+                          await new Promise(r => setTimeout(r, 1000));
+                          setOtpLoading(false);
+                          
+                          // Show toast message
+                          const toast = document.createElement('div');
+                          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded shadow-xl z-[9999] font-sans font-bold text-[14px] flex items-center space-x-2 animate-slide-up';
+                          toast.innerHTML = '<span>✓</span><span>Password changed successfully</span>';
+                          document.body.appendChild(toast);
+                          setTimeout(() => { toast.remove(); }, 3000);
+                          
+                          setActiveAuthTab('login'); 
+                        }} className="space-y-4 text-left font-sans">
+                          
                           <div className="flex flex-col space-y-1.5">
                             <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Email Address</label>
                             <div className="relative flex items-center">
@@ -981,9 +1003,40 @@ const Header = ({
                               <input 
                                 type="email" 
                                 required 
+                                name="resetEmail"
                                 placeholder="Enter your email address" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border border-neutral-200 rounded text-[13.5px] focus:outline-none focus:border-black font-medium bg-neutral-50"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col space-y-1.5">
+                            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">New Password</label>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3.5 text-gray-400">
+                                <Lock size={16} strokeWidth={1.5} />
+                              </span>
+                              <input 
+                                type="password" 
+                                required 
+                                name="newPassword"
+                                placeholder="Enter new password" 
+                                className="w-full pl-10 pr-4 py-3 border border-neutral-200 rounded text-[13.5px] focus:outline-none focus:border-black font-medium bg-neutral-50"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col space-y-1.5">
+                            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Confirm New Password</label>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3.5 text-gray-400">
+                                <Lock size={16} strokeWidth={1.5} />
+                              </span>
+                              <input 
+                                type="password" 
+                                required 
+                                name="confirmPassword"
+                                placeholder="Confirm new password" 
                                 className="w-full pl-10 pr-4 py-3 border border-neutral-200 rounded text-[13.5px] focus:outline-none focus:border-black font-medium bg-neutral-50"
                               />
                             </div>
@@ -994,7 +1047,7 @@ const Header = ({
                             disabled={otpLoading}
                             className="w-full py-3.5 bg-black hover:opacity-90 text-white text-[11px] font-sans font-bold uppercase tracking-widest transition-opacity rounded-lg"
                           >
-                            {otpLoading ? 'SENDING...' : 'SEND RESET LINK'}
+                            {otpLoading ? 'RESETTING...' : 'RESET PASSWORD'}
                           </button>
                         </form>
                       </div>

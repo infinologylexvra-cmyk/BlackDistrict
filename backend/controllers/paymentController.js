@@ -303,11 +303,35 @@ const getMyOrders = async (req, res) => {
   }
 };
 
+// @desc    Record failed or dismissed payment
+// @route   POST /api/payment/fail
+// @access  Public
+const recordFailedPayment = async (req, res) => {
+  const { razorpay_order_id, amount, items, shippingAddress } = req.body;
+  try {
+    const orderNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const failedOrder = new Order({
+      orderId: razorpay_order_id || `order_failed_${Date.now()}`,
+      orderNumber,
+      amount,
+      items,
+      shippingAddress,
+      status: 'failed'
+    });
+    await failedOrder.save();
+    res.json({ success: true, message: 'Failed order recorded.', orderId: razorpay_order_id, orderNumber });
+  } catch (error) {
+    console.error('Record Failed Payment Error:', error.message);
+    res.status(500).json({ success: false, message: 'Server error recording failed order' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   getOrders,
   verifyUpi,
   trackOrder,
-  getMyOrders
+  getMyOrders,
+  recordFailedPayment
 };

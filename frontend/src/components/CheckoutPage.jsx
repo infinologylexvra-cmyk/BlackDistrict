@@ -322,6 +322,41 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
           }
           setLoading(false);
         },
+        modal: {
+          ondismiss: async function () {
+            setLoading(true);
+            try {
+              await fetch(`${API_BASE_URL}/api/payment/fail`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: orderData.id,
+                  amount: amountToPay,
+                  shippingAddress: shippingDetails,
+                  items: cartItems.map(item => ({
+                    productId: item._id,
+                    name: item.name,
+                    price: item.price,
+                    size: item.size,
+                    quantity: item.quantity,
+                    image: item.images[0]
+                  }))
+                })
+              });
+            } catch (err) {
+              console.error('Fail record error:', err);
+            }
+            setOrderSuccess({
+              failed: true,
+              id: orderData.id,
+              method: 'Razorpay Online Gateway (Prepaid)',
+              amount: amountToPay,
+              address: shippingDetails
+            });
+            if (onClearCart) onClearCart();
+            setLoading(false);
+          }
+        },
         prefill: {
           name: shippingDetails.name,
           email: shippingDetails.email,
@@ -351,6 +386,36 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
   };
 
   if (orderSuccess) {
+    if (orderSuccess.failed) {
+      return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 font-sans text-left">
+          <div className="bg-white max-w-md w-full p-8 text-center border border-red-200 shadow-2xl">
+            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-red-600 mx-auto mb-4 border border-red-200">
+              <X size={32} />
+            </div>
+            <h2 className="text-[22px] font-bold mb-2">Order Failed!</h2>
+            <p className="text-[14px] text-gray-500 mb-6">Your payment was incomplete or declined.</p>
+            
+            <div className="bg-gray-50 p-4 text-[12px] text-left space-y-2 mb-6 border border-gray-200">
+              <div><strong>Order ID:</strong> {orderSuccess.id}</div>
+              <div><strong>Amount Attempted:</strong> {formatPrice(orderSuccess.amount)}</div>
+              <div><strong>Payment Method:</strong> {orderSuccess.method}</div>
+            </div>
+
+            <button 
+              onClick={() => {
+                onBack();
+                window.dispatchEvent(new CustomEvent('navigate', { detail: 'home' }));
+              }}
+              className="w-full py-3 bg-black text-white text-[13px] font-semibold uppercase tracking-wider hover:opacity-95"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 font-sans text-left">
         <div className="bg-white max-w-md w-full p-8 text-center border border-gray-200 shadow-2xl">
@@ -366,7 +431,10 @@ const CheckoutPage = ({ cartItems, onBack, onClearCart, isLoggedIn, storeLogo })
           </div>
 
           <button 
-            onClick={onBack}
+            onClick={() => {
+              onBack();
+              window.dispatchEvent(new CustomEvent('navigate', { detail: 'home' }));
+            }}
             className="w-full py-3 bg-black text-white text-[13px] font-semibold uppercase tracking-wider hover:opacity-95"
           >
             Continue Shopping
