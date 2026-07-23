@@ -5,6 +5,9 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  orderNumber: {
+    type: String
+  },
   paymentId: {
     type: String
   },

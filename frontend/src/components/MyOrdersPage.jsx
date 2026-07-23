@@ -90,7 +90,7 @@ const MyOrdersPage = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#e5e5e0] pb-5 mb-6">
                   <div>
-                    <h3 className="text-[16px] font-heading font-semibold">Order #{order.orderId}</h3>
+                    <h3 className="text-[16px] font-heading font-semibold">Order #{order.orderNumber || order.orderId.replace('order_', '')}</h3>
                     <p className="text-[12px] text-gray-500 font-sans mt-1">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="mt-3 sm:mt-0 text-right">

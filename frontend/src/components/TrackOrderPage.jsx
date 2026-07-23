@@ -65,7 +65,7 @@ const TrackOrderPage = () => {
               type="text" 
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              placeholder="e.g. order_mock_12345"
+              placeholder="e.g. 45747533 or order_xyz123"
               className="w-full pl-12 pr-4 py-3.5 bg-white border border-[#e5e5e0] focus:border-black focus:outline-none focus:ring-0 text-[14px] font-sans"
               required
             />
@@ -91,7 +91,7 @@ const TrackOrderPage = () => {
           <div className="bg-white border border-[#e5e5e0] p-6 sm:p-10 shadow-sm">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#e5e5e0] pb-6 mb-8">
               <div>
-                <h3 className="text-[18px] font-heading font-semibold">Order #{orderData.orderId}</h3>
+                <h3 className="text-[18px] font-heading font-semibold">Order #{orderData.orderNumber || orderData.orderId.replace('order_', '')}</h3>
                 <p className="text-[13px] text-gray-500 font-sans mt-1">Placed on {new Date(orderData.createdAt).toLocaleDateString()}</p>
               </div>
               <div className="mt-4 sm:mt-0 text-right">

@@ -24,6 +24,7 @@ import NotFoundPage from './components/NotFoundPage';
 import HelpSupportPage from './components/HelpSupportPage';
 import TrackOrderPage from './components/TrackOrderPage';
 import ReturnsExchangesPage from './components/ReturnsExchangesPage';
+import ShippingPolicyPage from './components/ShippingPolicyPage';
 import FaqPage from './components/FaqPage';
 import MyOrdersPage from './components/MyOrdersPage';
 import { API_BASE_URL } from './apiConfig';

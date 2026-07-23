@@ -58,11 +58,13 @@ const verifyPayment = async (req, res) => {
   } = req.body;
 
   try {
+    const orderNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
     // If it's a simulated order (mock), we directly save and verify
     if (razorpay_order_id && razorpay_order_id.startsWith('order_mock_')) {
       console.log('Saving verified mock checkout order...');
       const newOrder = new Order({
         orderId: razorpay_order_id,
+        orderNumber: orderNumber,
         paymentId: razorpay_payment_id || `pay_mock_${Date.now()}`,
         signature: razorpay_signature || 'mock_signature_passed',
         amount,
@@ -80,6 +82,7 @@ const verifyPayment = async (req, res) => {
       console.warn('Razorpay Key Secret is missing, fallback saving to db as pending...');
       const fallbackOrder = new Order({
         orderId: razorpay_order_id,
+        orderNumber: orderNumber,
         paymentId: razorpay_payment_id,
         signature: razorpay_signature,
         amount,
@@ -100,6 +103,7 @@ const verifyPayment = async (req, res) => {
       
       const newOrder = new Order({
         orderId: razorpay_order_id,
+        orderNumber: orderNumber,
         paymentId: razorpay_payment_id,
         signature: razorpay_signature,
         amount,
@@ -114,6 +118,7 @@ const verifyPayment = async (req, res) => {
       console.warn('Signature verification failed, but saving as pending for admin check...');
       const failedOrder = new Order({
         orderId: razorpay_order_id,
+        orderNumber: orderNumber,
         paymentId: razorpay_payment_id,
         signature: razorpay_signature,
         amount,
@@ -262,8 +267,13 @@ const trackOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
     
-    // Find the order in the database
-    const order = await Order.findOne({ orderId });
+    // Find the order in the database by Razorpay ID or custom Order Number
+    const order = await Order.findOne({ 
+      $or: [
+        { orderId: orderId },
+        { orderNumber: orderId }
+      ]
+    });
     
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found.' });

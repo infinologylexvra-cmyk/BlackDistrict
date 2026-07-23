@@ -11,18 +11,12 @@ const HelpSupportPage = () => {
         <p className="text-[15px] sm:text-[17px] text-[#6b6b66] font-sans max-w-lg mx-auto">
           Our comprehensive Help & Support center is currently being crafted to provide you with the best assistance possible.
         </p>
-        <p className="text-[14px] text-gray-500 font-sans tracking-wide uppercase mt-8 border border-neutral-300 inline-block px-6 py-2">
-          Coming Soon
-        </p>
-        <div className="pt-10">
-          <p className="text-[13px] text-gray-500 font-sans mb-4">In the meantime, you can reach us at:</p>
-          <a href="/contact" onClick={(e) => {
-            e.preventDefault();
-            window.dispatchEvent(new CustomEvent('navigate', { detail: 'contact' }));
-          }} className="text-black font-semibold uppercase tracking-widest text-[12px] underline hover:opacity-70 transition-opacity">
-            Contact Us
-          </a>
-        </div>
+        <a href="/contact" onClick={(e) => {
+          e.preventDefault();
+          window.dispatchEvent(new CustomEvent('navigate', { detail: 'contact' }));
+        }} className="text-[14px] text-black font-semibold font-sans tracking-widest uppercase mt-8 border border-black hover:bg-black hover:text-white transition-colors inline-block px-8 py-3">
+          Contact Us
+        </a>
       </div>
     </div>
   );

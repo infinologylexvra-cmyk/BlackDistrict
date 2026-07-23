@@ -219,7 +219,7 @@ const PantCollectionPage = ({
               </button>
 
               {showAvailability && (
-                <div className="absolute left-0 mt-2 w-[280px] max-w-[90vw] bg-[#f5f5f0] border border-[#e5e5e0] shadow-xl rounded-none p-4 z-30">
+                <div className="absolute -left-[50px] sm:left-0 mt-2 w-[280px] max-w-[90vw] bg-[#f5f5f0] border border-[#e5e5e0] shadow-xl rounded-none p-4 z-30">
                   <div className="flex justify-between items-center pb-2 border-b border-[#e5e5e0] mb-3">
                     <span className="text-[12px] text-[#6b6b66]">{(filterInStock ? 1 : 0) + (filterOutOfStock ? 1 : 0)} selected</span>
                     <button 
@@ -270,7 +270,7 @@ const PantCollectionPage = ({
               </button>
 
               {showPrice && (
-                <div className="absolute -left-[80px] sm:left-0 mt-2 w-[280px] max-w-[90vw] bg-[#f5f5f0] border border-[#e5e5e0] shadow-xl rounded-none p-4 z-30">
+                <div className="absolute -left-[140px] sm:-left-[80px] md:left-0 mt-2 w-[280px] max-w-[90vw] bg-[#f5f5f0] border border-[#e5e5e0] shadow-xl rounded-none p-4 z-30">
                   <div className="flex justify-between items-center pb-2 border-b border-[#e5e5e0] mb-3">
                     <span className="text-[12px] text-[#6b6b66]">The highest price is Rs. 1,999.00</span>
                     <button 
