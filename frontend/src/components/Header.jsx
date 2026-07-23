@@ -98,6 +98,8 @@ const Header = ({
           localStorage.setItem('user', JSON.stringify(data));
           setIsAuthOpen(false);
           setAuthError('');
+          setCurrentPage('home');
+          window.history.pushState({}, '', '/');
         } else {
           setAuthError(data.message || 'Google Login failed.');
         }
@@ -242,6 +244,8 @@ const Header = ({
         setLoggedInUser(data.user);
         setIsAuthOpen(false);
         setAuthError('');
+        setCurrentPage('home');
+        window.history.pushState({}, '', '/');
         // Reset states
         setIsOtpSent(false);
         setPhone('');
@@ -309,6 +313,8 @@ const Header = ({
         setLoggedInUser(data);
         setIsAuthOpen(false);
         setAuthError('');
+        setCurrentPage('home');
+        window.history.pushState({}, '', '/');
         // Save logged-in user in localStorage
         localStorage.setItem('user', JSON.stringify(data));
       } else {
@@ -508,6 +514,8 @@ const Header = ({
                               setLoggedInUser(null);
                               localStorage.removeItem('user');
                               setShowProfileDropdown(false);
+                              setCurrentPage('home');
+                              window.history.pushState({}, '', '/');
                             }}
                             className="w-full text-left py-1.5 px-2 text-red-600 hover:bg-red-50 rounded text-[12px] font-bold flex items-center space-x-2"
                           >
@@ -711,6 +719,9 @@ const Header = ({
                     setOtp('');
                     setMockOtpReceived('');
                     setAuthError('');
+                    setIsAuthOpen(false);
+                    setCurrentPage('home');
+                    window.history.pushState({}, '', '/');
                   }}
                   className="px-10 py-3.5 bg-black text-white uppercase text-[11px] tracking-widest font-bold hover:opacity-90 transition-opacity"
                 >
