@@ -66,7 +66,7 @@ const Footer = () => {
           {/* Links sections */}
           {sections.map((section) => (
             <div key={section.title} className="space-y-5">
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-[#c5a880] drop-shadow-sm">{section.title}</h3>
+              <h3 className="text-[13px] font-black uppercase tracking-widest text-white drop-shadow-sm">{section.title}</h3>
               <ul className="space-y-2.5 text-[12.5px] text-gray-500 font-medium">
                 {section.links.map((link) => (
                   <li key={link.label}>
@@ -79,7 +79,7 @@ const Footer = () => {
 
           {/* We Accept */}
           <div className="col-span-2 md:col-span-1 space-y-5">
-            <h3 className="text-[13px] font-black uppercase tracking-widest text-[#c5a880] drop-shadow-sm">WE ACCEPT</h3>
+            <h3 className="text-[13px] font-black uppercase tracking-widest text-white drop-shadow-sm">WE ACCEPT</h3>
             <div className="bg-white px-4 py-3 rounded inline-flex items-center justify-center border border-neutral-700">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" 

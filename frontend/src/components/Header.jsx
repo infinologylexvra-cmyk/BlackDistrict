@@ -327,17 +327,17 @@ const Header = ({
           <div className="max-w-[120rem] mx-auto px-4 sm:px-6 lg:px-10 w-full flex flex-col justify-between h-full">
             
             {/* Mobile Header Row */}
-            <div className="flex md:hidden justify-between items-center">
+            <div className="flex md:hidden justify-between items-center relative">
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-neutral-900 hover:opacity-70 transition-opacity p-1"
+                className="text-neutral-900 hover:opacity-70 transition-opacity p-1 z-10"
               >
                 {isMobileMenuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
               </button>
-              <a href="/" onClick={(e) => handleNavClick('home', e)} className="flex items-center">
+              <a href="/" onClick={(e) => handleNavClick('home', e)} className="absolute left-1/2 -translate-x-1/2">
                 <img src="/image/new-logo.png" alt="Black District" className="h-10 w-auto object-contain" />
               </a>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 z-10">
                 <button 
                   onClick={() => setIsSearchOpen(true)}
                   className="text-neutral-900 hover:opacity-70 transition-opacity"
@@ -612,6 +612,7 @@ const Header = ({
                 ...(categories || []).map(cat => ({ label: cat.label, page: cat.name })),
                 { label: 'Catalogue', page: 'catalogue' },
                 { label: 'Collections', page: 'all' },
+                { label: 'My Orders', page: 'my-orders' },
                 { label: 'Contact Us', page: 'contact' }
               ].map(item => (
                 <button
@@ -973,6 +974,7 @@ const Header = ({
 
                         <form onSubmit={async (e) => { 
                           e.preventDefault(); 
+                          const emailVal = e.target.resetEmail.value;
                           const newPass = e.target.newPassword.value;
                           const confPass = e.target.confirmPassword.value;
                           if (newPass !== confPass) {
@@ -980,18 +982,27 @@ const Header = ({
                             return;
                           }
                           setOtpLoading(true);
-                          // Simulate API call
-                          await new Promise(r => setTimeout(r, 1000));
+                          try {
+                            const res = await fetch(`${API_BASE_URL}/api/users/reset-password`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ email: emailVal, newPassword: newPass })
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                              const toast = document.createElement('div');
+                              toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded shadow-xl z-[9999] font-sans font-bold text-[14px] flex items-center space-x-2 animate-slide-up';
+                              toast.innerHTML = '<span>✓</span><span>Password changed successfully</span>';
+                              document.body.appendChild(toast);
+                              setTimeout(() => { toast.remove(); }, 3000);
+                              setActiveAuthTab('login'); 
+                            } else {
+                              alert(data.message || 'Failed to reset password');
+                            }
+                          } catch (err) {
+                            alert('Network error while resetting password');
+                          }
                           setOtpLoading(false);
-                          
-                          // Show toast message
-                          const toast = document.createElement('div');
-                          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded shadow-xl z-[9999] font-sans font-bold text-[14px] flex items-center space-x-2 animate-slide-up';
-                          toast.innerHTML = '<span>✓</span><span>Password changed successfully</span>';
-                          document.body.appendChild(toast);
-                          setTimeout(() => { toast.remove(); }, 3000);
-                          
-                          setActiveAuthTab('login'); 
                         }} className="space-y-4 text-left font-sans">
                           
                           <div className="flex flex-col space-y-1.5">
