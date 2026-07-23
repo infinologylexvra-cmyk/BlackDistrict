@@ -33,7 +33,7 @@ const CATALOGUE_FALLBACKS = [
     name: 'BlackDistrict™ Executive Black Linen Set',
     price: 2899,
     compareAtPrice: 4099,
-    images: ['/image/collection-shirt.png', '/image/black-pant-1.webp'],
+    images: ['/image/collection-shirt.png', '/image/black-pant-1-hd.jpg'],
     description: 'Cuban classic shirt matched with breathable solid black tailored drawstring pants.',
     sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
     onSale: true,
