@@ -15,7 +15,7 @@ const COLLECTIONS_DATA = [
   },
   {
     id: 'col3',
-    name: 'FineLegends™ Signature Luxe Collection',
+    name: 'BlackDistrict™ Signature Luxe Collection',
     image: '/image/emerald_combo.jpg',
     path: 'catalogue'
   },

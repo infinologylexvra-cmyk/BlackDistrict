@@ -1761,9 +1761,7 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                           {(categories || []).map(cat => (
                             <option key={cat.name} value={cat.name}>{cat.label}</option>
                           ))}
-                          <option value="shirt">Shirts</option>
-                          <option value="pant">Pants</option>
-                          <option value="combo">Combos</option>
+                          <option value="combo">Curated Combos</option>
                         </select>
                       </div>
 

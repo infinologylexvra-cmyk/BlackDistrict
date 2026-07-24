@@ -55,8 +55,8 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
-          const filtered = data.filter(cat => cat.name !== 'footwear' && cat.name !== 'watches' && cat.name !== 'combo');
-          setCategories(filtered);
+          const filtered = data.filter(cat => cat.name !== 'footwear' && cat.name !== 'watches');
+          if (filtered.length > 0) setCategories(filtered);
         }
       })
       .catch(err => console.error("Error loading categories:", err));
@@ -311,29 +311,21 @@ function App() {
       )}
       
       <main className="flex-grow">
-        {categories.map(cat => (
-          currentPage === cat.name && (
-            <PantCollectionPage 
-              key={cat.name}
-              category={cat.name}
-              categoryLabel={cat.label}
-              wishlist={wishlist}
-              onToggleWishlist={handleToggleWishlist}
-              categoryDesc={cat.name === 'shirt' 
-                ? 'Timeless shirts hand-tailored from premium materials. Experience the perfect drape, breathable linen weave, and artisanal craftsmanship built for the modern legend.'
-                : cat.name === 'combo' 
-                ? 'Pre-curated combination sets matching our premium linens together. Perfectly paired and ready to make a statement.'
-                : undefined
-              }
-              onAddToCart={handleAddToCart} 
-              onProductSelect={(prod) => {
-                setSelectedProduct(prod);
-                setCurrentPage('description');
-                window.history.pushState({}, '', `/products/${prod._id}`);
-              }}
-            />
-          )
-        ))}
+        {(currentPage === 'combo' || currentPage === 'shirt' || currentPage === 'pant') && (
+          <PantCollectionPage 
+            category={currentPage}
+            categoryLabel={currentPage === 'combo' ? 'CURATED COMBOS' : currentPage.toUpperCase()}
+            wishlist={wishlist}
+            onToggleWishlist={handleToggleWishlist}
+            categoryDesc="Pre-curated combination sets matching our premium linens together. Perfectly paired and ready to make a statement."
+            onAddToCart={handleAddToCart} 
+            onProductSelect={(prod) => {
+              setSelectedProduct(prod);
+              setCurrentPage('description');
+              window.history.pushState({}, '', `/products/${prod._id}`);
+            }}
+          />
+        )}
         {(currentPage === 'collections' || currentPage === 'all') && (
           <AllCollectionsPage onNavigate={handleCollectionsNavigation} />
         )}
