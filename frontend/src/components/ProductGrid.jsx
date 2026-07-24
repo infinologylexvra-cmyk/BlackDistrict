@@ -4,78 +4,22 @@ import { translations } from '../utils/translations';
 import { Heart } from 'lucide-react';
 
 const FALLBACK_ARRIVALS = [
-  {
-    _id: 'arr1',
-    name: 'Classic Beige Pant & Shirt Set',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/collection-shirt.png'],
-    category: 'combo',
-    description: 'A complete combination featuring our tailored beige trousers and a matching premium shirt. Designed for a casual yet sophisticated fit.'
-  },
-  {
-    _id: 'arr2',
-    name: 'Classic White Pants & Linen Shirt Combo',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/collection-summer-edit.jpg'],
-    category: 'combo',
-    description: 'A premium summer-ready set consisting of regular straight cotton white pants and a breathable linen shirt.'
-  },
-  {
-    _id: 'arr3',
-    name: 'Midnight Silk Evening Shirt & Pant Set',
-    price: 999,
-    compareAtPrice: 3499,
-    images: ['/image/midnight_silk_shirt.jpg'],
-    category: 'combo',
-    description: 'A luxurious deep midnight navy silk button-down shirt paired with tailored dark trousers. Elegant, sophisticated evening wear.'
-  },
-  {
-    _id: 'arr4',
-    name: 'Riviera Resort Combo Set',
-    price: 999,
-    compareAtPrice: 4299,
-    images: ['/image/riviera_combo.jpg'],
-    category: 'combo',
-    description: 'A premium men\'s combination set: a beige linen shirt and white trousers. Resort wear, bright Mediterranean vibe.'
-  },
-  {
-    _id: 'arr5',
-    name: 'Emerald Linen Signature Set',
-    price: 999,
-    compareAtPrice: 4599,
-    images: ['/image/emerald_combo.jpg'],
-    category: 'combo',
-    description: 'An emerald green linen shirt and beige tailored trousers combo. Studio lighting, luxury brand aesthetic.'
-  },
-  {
-    _id: 'arr6',
-    name: 'Blue Linen Summer Shirt & Trouser Combo',
-    price: 999,
-    compareAtPrice: 3499,
-    images: ['/image/blue-linen-shirt.jpg'],
-    category: 'combo',
-    description: 'Lightweight blue linen shirt paired with comfortable matching trousers, perfect for summer outings and beach vacations.'
-  },
-  {
-    _id: 'arr7',
-    name: 'Classic Black Pant & Evening Shirt Combo',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/collection-signature.webp'],
-    category: 'combo',
-    description: 'An ultra HD solid drawstring black pant paired with a premium evening shirt for a complete sophisticated look.'
-  },
-  {
-    _id: 'arr8',
-    name: 'Stone Grey Chino Pants & Shirt Combo',
-    price: 999,
-    compareAtPrice: 2499,
-    images: ['/image/olive-safari-shirt.jpg'],
-    category: 'combo',
-    description: 'Premium slim-fit stone grey chino trousers combined with a breathable cotton shirt. Crafted for modern elegance and comfort.'
-  }
+  { _id: 'arr1', name: 'Aura Linen Combo Set', price: 999, compareAtPrice: 1999, images: ['/image/c1.jpg'], category: 'combo', description: 'A hand-tailored premium linen shirt paired with lightweight drawstring trousers.' },
+  { _id: 'arr2', name: 'Monaco Resort Shirt & Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c2.jpg'], category: 'combo', description: 'Crafted from high-grade flax blend fabric for casual luxury.' },
+  { _id: 'arr3', name: 'Riviera Sunset Linen Combo', price: 999, compareAtPrice: 2299, images: ['/image/c3.jpg'], category: 'combo', description: 'Mediterranean inspired ensemble combining a Cuban collar shirt with trousers.' },
+  { _id: 'arr4', name: 'Elegance Silk Blend Combo', price: 999, compareAtPrice: 2499, images: ['/image/c4.jpg'], category: 'combo', description: 'Sophisticated evening wear featuring a silk-touch button-down.' },
+  { _id: 'arr5', name: 'Classic White & Earthy Trousers Set', price: 999, compareAtPrice: 1999, images: ['/image/c5.jpg'], category: 'combo', description: 'Crisp white top paired with neutral earthy-toned bottoms.' },
+  { _id: 'arr6', name: 'Midnight Navy Signature Combo', price: 999, compareAtPrice: 2399, images: ['/image/c6.jpg'], category: 'combo', description: 'Deep navy shirt paired with contrasting light trousers.' },
+  { _id: 'arr7', name: 'Olive Safari & Chino Combo Set', price: 999, compareAtPrice: 2199, images: ['/image/c7.jpg'], category: 'combo', description: 'Rustic olive tone shirt combined with tailored stone chinos.' },
+  { _id: 'arr8', name: 'Breeze Linen Short-Sleeve Combo', price: 999, compareAtPrice: 1999, images: ['/image/c8.jpg'], category: 'combo', description: 'Lightweight short-sleeve resort collar shirt with matching pants.' },
+  { _id: 'arr9', name: 'Old Money Gurkha Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c9.jpg'], category: 'combo', description: 'Double-buckle Gurkha styled trousers matched with a linen shirt.' },
+  { _id: 'arr10', name: 'Sandstone Vacation Combo', price: 999, compareAtPrice: 2099, images: ['/image/c10.jpg'], category: 'combo', description: 'Warm sandstone hues in a lightweight textured fabric.' },
+  { _id: 'arr11', name: 'Charcoal Minimalist Combo Set', price: 999, compareAtPrice: 2399, images: ['/image/c11.jpg'], category: 'combo', description: 'Monochromatic dark charcoal aesthetic for evening events.' },
+  { _id: 'arr12', name: 'Striped Resort & Linen Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c12.jpg'], category: 'combo', description: 'Subtle vertical striped short-sleeve shirt with off-white trousers.' },
+  { _id: 'arr13', name: 'Azure Blue Coastal Combo', price: 999, compareAtPrice: 2299, images: ['/image/c13.jpg'], category: 'combo', description: 'Sky blue breathable linen top with cream cotton pants.' },
+  { _id: 'arr14', name: 'Heritage Knit & Trousers Set', price: 999, compareAtPrice: 2499, images: ['/image/c14.jpg'], category: 'combo', description: 'Micro-textured knit polo combined with relaxed trousers.' },
+  { _id: 'arr15', name: 'Terracotta Summer Linen Combo', price: 999, compareAtPrice: 2099, images: ['/image/c15.jpg'], category: 'combo', description: 'Rich earthy terracotta shirt matched with light sand trousers.' },
+  { _id: 'arr16', name: 'Executive Black & Beige Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c16.jpg'], category: 'combo', description: 'Tailored black linen shirt paired with classic beige trousers.' }
 ];
 
 const ProductGrid = ({ onProductSelect, onNavigate, wishlist = [], onToggleWishlist }) => {
@@ -105,7 +49,7 @@ const ProductGrid = ({ onProductSelect, onNavigate, wishlist = [], onToggleWishl
             return (order[catA] || 99) - (order[catB] || 99);
           });
           
-          const arrivalsItems = sortedItems.slice(0, 8);
+          const arrivalsItems = sortedItems.slice(0, 16);
           if (arrivalsItems.length > 0) {
             setArrivals(arrivalsItems);
           }

@@ -3,42 +3,22 @@ import { ChevronDown, ShoppingBag, X, Heart } from 'lucide-react';
 import { API_BASE_URL } from '../apiConfig';
 
 const FALLBACK_PRODUCTS = [
-  {
-    _id: 'p1',
-    name: 'Classic Beige Pant & Shirt Set',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/collection-shirt.png', '/image/beige-pant-2-hd.jpg', '/image/beige-pant-3.jpg'],
-    description: 'A complete combination featuring our tailored beige trousers and a matching premium shirt. Designed for a casual yet sophisticated fit.',
-    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
-    onSale: true,
-    availability: true,
-    category: 'combo'
-  },
-  {
-    _id: 'p2',
-    name: 'Classic White Pants & Linen Shirt Combo',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/collection-summer-edit.jpg', '/image/white-pants-2.png', '/image/white-pants-3.png'],
-    description: 'A premium summer-ready set consisting of regular straight cotton white pants and a breathable linen shirt.',
-    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
-    onSale: true,
-    availability: true,
-    category: 'combo'
-  },
-  {
-    _id: 'p3',
-    name: 'Classic Black Pant & Evening Shirt Combo',
-    price: 999,
-    compareAtPrice: 1999,
-    images: ['/image/midnight_silk_shirt.jpg', '/image/black-pant-2-hd.jpg', '/image/black-pant-3-hd.jpg', '/image/black-pant-4-hd.jpg'],
-    description: 'An ultra HD solid drawstring black pant paired with a premium evening shirt for a complete sophisticated look.',
-    sizes: ['S / 30', 'M / 32', 'L / 34', 'XL / 36'],
-    onSale: true,
-    availability: true,
-    category: 'combo'
-  }
+  { _id: 'p1', name: 'Aura Linen Combo Set', price: 999, compareAtPrice: 1999, images: ['/image/c1.jpg'], category: 'combo', description: 'A hand-tailored premium linen shirt paired with lightweight drawstring trousers.' },
+  { _id: 'p2', name: 'Monaco Resort Shirt & Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c2.jpg'], category: 'combo', description: 'Crafted from high-grade flax blend fabric for casual luxury.' },
+  { _id: 'p3', name: 'Riviera Sunset Linen Combo', price: 999, compareAtPrice: 2299, images: ['/image/c3.jpg'], category: 'combo', description: 'Mediterranean inspired ensemble combining a Cuban collar shirt with trousers.' },
+  { _id: 'p4', name: 'Elegance Silk Blend Combo', price: 999, compareAtPrice: 2499, images: ['/image/c4.jpg'], category: 'combo', description: 'Sophisticated evening wear featuring a silk-touch button-down.' },
+  { _id: 'p5', name: 'Classic White & Earthy Trousers Set', price: 999, compareAtPrice: 1999, images: ['/image/c5.jpg'], category: 'combo', description: 'Crisp white top paired with neutral earthy-toned bottoms.' },
+  { _id: 'p6', name: 'Midnight Navy Signature Combo', price: 999, compareAtPrice: 2399, images: ['/image/c6.jpg'], category: 'combo', description: 'Deep navy shirt paired with contrasting light trousers.' },
+  { _id: 'p7', name: 'Olive Safari & Chino Combo Set', price: 999, compareAtPrice: 2199, images: ['/image/c7.jpg'], category: 'combo', description: 'Rustic olive tone shirt combined with tailored stone chinos.' },
+  { _id: 'p8', name: 'Breeze Linen Short-Sleeve Combo', price: 999, compareAtPrice: 1999, images: ['/image/c8.jpg'], category: 'combo', description: 'Lightweight short-sleeve resort collar shirt with matching pants.' },
+  { _id: 'p9', name: 'Old Money Gurkha Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c9.jpg'], category: 'combo', description: 'Double-buckle Gurkha styled trousers matched with a linen shirt.' },
+  { _id: 'p10', name: 'Sandstone Vacation Combo', price: 999, compareAtPrice: 2099, images: ['/image/c10.jpg'], category: 'combo', description: 'Warm sandstone hues in a lightweight textured fabric.' },
+  { _id: 'p11', name: 'Charcoal Minimalist Combo Set', price: 999, compareAtPrice: 2399, images: ['/image/c11.jpg'], category: 'combo', description: 'Monochromatic dark charcoal aesthetic for evening events.' },
+  { _id: 'p12', name: 'Striped Resort & Linen Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c12.jpg'], category: 'combo', description: 'Subtle vertical striped short-sleeve shirt with off-white trousers.' },
+  { _id: 'p13', name: 'Azure Blue Coastal Combo', price: 999, compareAtPrice: 2299, images: ['/image/c13.jpg'], category: 'combo', description: 'Sky blue breathable linen top with cream cotton pants.' },
+  { _id: 'p14', name: 'Heritage Knit & Trousers Set', price: 999, compareAtPrice: 2499, images: ['/image/c14.jpg'], category: 'combo', description: 'Micro-textured knit polo combined with relaxed trousers.' },
+  { _id: 'p15', name: 'Terracotta Summer Linen Combo', price: 999, compareAtPrice: 2099, images: ['/image/c15.jpg'], category: 'combo', description: 'Rich earthy terracotta shirt matched with light sand trousers.' },
+  { _id: 'p16', name: 'Executive Black & Beige Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c16.jpg'], category: 'combo', description: 'Tailored black linen shirt paired with classic beige trousers.' }
 ];
 
 const PantCollectionPage = ({ 
@@ -117,11 +97,8 @@ const PantCollectionPage = ({
   };
 
   const getBannerImage = () => {
-    if (category === 'pant') return '/image/collection-pant.jpg';
-    if (category === 'shirt') return '/image/collection-shirt.png';
-    if (category === 'combo') return '/image/collection-combo.png';
-    if (category === 'footwear') return '/image/collection-footwear-banner.jpg';
-    return '/image/hero-banner.png';
+    if (category === 'combo') return '/image/c1.jpg';
+    return '/image/c2.jpg';
   };
 
   return (
@@ -135,15 +112,16 @@ const PantCollectionPage = ({
       </div>
 
       {/* Hero Banner Section */}
-      <div className="w-full relative overflow-hidden bg-[#f5f5f0]">
+      <div className="w-full h-[350px] md:h-[450px] relative overflow-hidden bg-[#1a1a1a]">
         <img 
           src={getBannerImage()} 
           alt={`${categoryLabel} Collection Banner`} 
-          className="w-full h-auto object-contain"
+          className="w-full h-full object-cover object-[center_35%] opacity-90 transition-transform duration-1000 hover:scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {/* Card Overlay (Centered at bottom) */}
-        <div className="absolute bottom-8 md:bottom-16 left-1/2 -translate-x-1/2 bg-[#f5f5f0]/90 border border-[#e5e5e0] px-8 py-6 sm:px-12 sm:py-8 max-w-[650px] w-[90%] text-center shadow-sm">
-          <p className="text-[13px] sm:text-[14px] leading-relaxed tracking-wide font-sans text-[#1a1a1a]">
+        <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md border border-white/20 px-8 py-5 sm:px-12 sm:py-6 max-w-[650px] w-[90%] text-center shadow-lg">
+          <p className="text-[13px] sm:text-[15px] leading-relaxed tracking-wide font-sans text-white font-light">
             {categoryDesc}
           </p>
         </div>

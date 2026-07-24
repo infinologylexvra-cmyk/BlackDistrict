@@ -3,38 +3,38 @@ import React from 'react';
 const COLLECTIONS_DATA = [
   {
     id: 'col1',
-    name: 'The Signature Collection',
-    image: '/image/combo-signature.jpg',
+    name: 'Aura Signature Collection',
+    image: '/image/c1.jpg',
     path: 'catalogue'
   },
   {
     id: 'col2',
-    name: 'The Shirt',
-    image: '/image/collection-shirt.png',
+    name: 'Monaco Resort Edition',
+    image: '/image/c2.jpg',
     path: 'catalogue'
   },
   {
     id: 'col3',
     name: 'BlackDistrict™ Signature Luxe Collection',
-    image: '/image/emerald_combo.jpg',
+    image: '/image/c3.jpg',
     path: 'catalogue'
   },
   {
     id: 'col4',
-    name: 'Cuban Classic Combo',
-    image: '/image/striped-cuban-shirt.jpg',
+    name: 'Elegance Silk Blend Combo',
+    image: '/image/c4.jpg',
     path: 'catalogue'
   },
   {
     id: 'col5',
-    name: 'Resort Wear Combo',
-    image: '/image/riviera_combo.jpg',
+    name: 'Classic White & Earthy Trousers Set',
+    image: '/image/c5.jpg',
     path: 'catalogue'
   },
   {
     id: 'col6',
-    name: 'Old Money Winterwear',
-    image: '/image/collection-winterwear.jpg',
+    name: 'Midnight Navy Signature Combo',
+    image: '/image/c6.jpg',
     path: 'catalogue'
   }
 ];
