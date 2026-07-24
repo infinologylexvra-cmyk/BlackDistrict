@@ -3,6 +3,25 @@ import { Shield, CreditCard, Mail, BarChart2, LogOut, Search, Clock, Users, Arro
 import { API_BASE_URL } from '../apiConfig';
 import { translations } from '../utils/translations';
 
+const ADMIN_FALLBACK_PRODUCTS = [
+  { _id: 'p1', name: 'Aura Linen Combo Set', price: 999, compareAtPrice: 1999, images: ['/image/c1.jpg'], category: 'combo', availability: true },
+  { _id: 'p2', name: 'Monaco Resort Shirt & Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c2.jpg'], category: 'combo', availability: true },
+  { _id: 'p3', name: 'Riviera Sunset Linen Combo', price: 999, compareAtPrice: 2299, images: ['/image/c3.jpg'], category: 'combo', availability: true },
+  { _id: 'p4', name: 'Elegance Silk Blend Combo', price: 999, compareAtPrice: 2499, images: ['/image/c4.jpg'], category: 'combo', availability: true },
+  { _id: 'p5', name: 'Classic White & Earthy Trousers Set', price: 999, compareAtPrice: 1999, images: ['/image/c5.jpg'], category: 'combo', availability: true },
+  { _id: 'p6', name: 'Midnight Navy Signature Combo', price: 999, compareAtPrice: 2399, images: ['/image/c6.jpg'], category: 'combo', availability: true },
+  { _id: 'p7', name: 'Olive Safari & Chino Combo Set', price: 999, compareAtPrice: 2199, images: ['/image/c7.jpg'], category: 'combo', availability: true },
+  { _id: 'p8', name: 'Breeze Linen Short-Sleeve Combo', price: 999, compareAtPrice: 1999, images: ['/image/c8.jpg'], category: 'combo', availability: true },
+  { _id: 'p9', name: 'Old Money Gurkha Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c9.jpg'], category: 'combo', availability: true },
+  { _id: 'p10', name: 'Sandstone Vacation Combo', price: 999, compareAtPrice: 2099, images: ['/image/c10.jpg'], category: 'combo', availability: true },
+  { _id: 'p11', name: 'Charcoal Minimalist Combo Set', price: 999, compareAtPrice: 2399, images: ['/image/c11.jpg'], category: 'combo', availability: true },
+  { _id: 'p12', name: 'Striped Resort & Linen Pant Set', price: 999, compareAtPrice: 2199, images: ['/image/c12.jpg'], category: 'combo', availability: true },
+  { _id: 'p13', name: 'Azure Blue Coastal Combo', price: 999, compareAtPrice: 2299, images: ['/image/c13.jpg'], category: 'combo', availability: true },
+  { _id: 'p14', name: 'Heritage Knit & Trousers Set', price: 999, compareAtPrice: 2499, images: ['/image/c14.jpg'], category: 'combo', availability: true },
+  { _id: 'p15', name: 'Terracotta Summer Linen Combo', price: 999, compareAtPrice: 2099, images: ['/image/c15.jpg'], category: 'combo', availability: true },
+  { _id: 'p16', name: 'Executive Black & Beige Combo Set', price: 999, compareAtPrice: 2599, images: ['/image/c16.jpg'], category: 'combo', availability: true }
+];
+
 const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
   // 24-Hour Admin Auth Session Persistence across page refreshes
   const [isAuthorized, setIsAuthorized] = useState(() => {
@@ -974,7 +993,7 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
             {[
               { id: 'dashboard', label: 'Dashboard', icon: <BarChart2 size={17} /> },
               { id: 'products', label: 'Products', icon: <Box size={17} />, count: products.length },
-              { id: 'categories', label: 'Categories', icon: <Layers size={17} />, count: 3 },
+              { id: 'categories', label: 'Categories', icon: <Layers size={17} />, count: categories.length },
               { id: 'orders', label: 'Orders', icon: <CreditCard size={17} />, count: orders.length },
               { id: 'reviews', label: 'Reviews', icon: <MessageSquare size={17} />, count: reviews.length },
               { id: 'contacts', label: 'Customers', icon: <Users size={17} /> },
@@ -1960,15 +1979,13 @@ const AdminPanel = ({ onBack, categories = [], loadCategories }) => {
                                   >
                                     Edit
                                   </button>
-                                  {cat.name !== 'shirt' && cat.name !== 'pant' && cat.name !== 'combo' && (
-                                    <button
-                                      onClick={() => handleDeleteCategory(cat._id)}
-                                      className="p-1.5 text-gray-400 hover:text-red-500 transition-colors inline-flex align-middle"
-                                      title="Delete Category"
-                                    >
-                                      <Trash2 size={15} />
-                                    </button>
-                                  )}
+                                  <button
+                                    onClick={() => handleDeleteCategory(cat._id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-500 transition-colors inline-flex align-middle"
+                                    title="Delete Category"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
                                 </>
                               )}
                             </td>

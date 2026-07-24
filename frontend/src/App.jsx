@@ -133,11 +133,7 @@ function App() {
 
       if (rawPath === '/' || rawPath === '' || rawPath === '/index.html') {
         setCurrentPage('home');
-      } else if (rawPath === '/shirt' || rawPath === '/shirts' || rawPath === '/collections/shirt' || rawPath === '/collections/shirts') {
-        setCurrentPage('shirt');
-      } else if (rawPath === '/pant' || rawPath === '/pants' || rawPath === '/pantts' || rawPath === '/collections/pant' || rawPath === '/collections/pants' || rawPath === '/collections/pantts') {
-        setCurrentPage('pant');
-      } else if (rawPath === '/combo' || rawPath === '/combos' || rawPath === '/collections/combo' || rawPath === '/collections/combos') {
+      } else if (rawPath === '/shirt' || rawPath === '/shirts' || rawPath === '/collections/shirt' || rawPath === '/collections/shirts' || rawPath === '/pant' || rawPath === '/pants' || rawPath === '/pantts' || rawPath === '/collections/pant' || rawPath === '/collections/pants' || rawPath === '/collections/pantts' || rawPath === '/combo' || rawPath === '/combos' || rawPath === '/collections/combo' || rawPath === '/collections/combos') {
         setCurrentPage('combo');
       } else if (rawPath === '/collections' || rawPath === '/collections/all' || rawPath === '/all') {
         setCurrentPage('collections');
@@ -313,8 +309,8 @@ function App() {
       <main className="flex-grow">
         {(currentPage === 'combo' || currentPage === 'shirt' || currentPage === 'pant') && (
           <PantCollectionPage 
-            category={currentPage}
-            categoryLabel={currentPage === 'combo' ? 'CURATED COMBOS' : currentPage.toUpperCase()}
+            category="combo"
+            categoryLabel="CURATED COMBOS"
             wishlist={wishlist}
             onToggleWishlist={handleToggleWishlist}
             categoryDesc="Pre-curated combination sets matching our premium linens together. Perfectly paired and ready to make a statement."

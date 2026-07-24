@@ -3,27 +3,14 @@ const router = express.Router();
 const Category = require('../models/Category');
 const Product = require('../models/Product');
 
-// Seed default categories helper
+// Seed default categories helper if empty
 const seedDefaultsIfEmpty = async () => {
   try {
-    // Delete footwear, watches, and combo from DB categories and products permanently
-    await Category.deleteMany({ name: { $in: ['footwear', 'watches', 'combo'] } });
-    await Product.deleteMany({ category: { $in: ['footwear', 'watches', 'combo'] } });
-    console.log('Permanently deleted footwear, watches, and combo categories/products from DB.');
-
-    const defaults = [
-      { name: 'pant', label: 'Pants' },
-      { name: 'shirt', label: 'Shirts' }
-    ];
-
-    for (const d of defaults) {
-      await Category.findOneAndUpdate(
-        { name: d.name },
-        { label: d.label },
-        { upsert: true, new: true }
-      );
+    const count = await Category.countDocuments();
+    if (count === 0) {
+      await Category.create({ name: 'combo', label: 'Curated Combos' });
+      console.log('Default Curated Combos category synchronized.');
     }
-    console.log('Default categories verified and synchronized.');
   } catch (err) {
     console.error('Error seeding categories:', err.message);
   }
